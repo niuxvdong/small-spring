@@ -13,7 +13,11 @@ import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
 
     /**
-     * 实现顶层 BeanFactory 接口的唯一方法
+     * 1. 实现顶层 BeanFactory 接口的唯一方法 <br>
+     * 2. 这也是本抽象类 AbstractBeanFactory 的模板方法模式的体现，本方法即为模板方法，定义了整个骨架 <br>
+     *
+     * 3. 模板方法设计模式笔记：<a href="https://blog.itnxd.cn/article/behavioral-pattern-template-design-pattern">https://blog.itnxd.cn/article/behavioral-pattern-template-design-pattern</a>
+     *
      * @param beanName
      * @return
      * @throws BeansException
