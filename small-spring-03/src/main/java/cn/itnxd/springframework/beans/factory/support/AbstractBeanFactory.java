@@ -24,25 +24,53 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
      */
     @Override
     public Object getBean(String beanName) throws BeansException {
+        return doGetBean(beanName, null);
+    }
+
+    /**
+     * 增加：添加支持入参的 getBean 方法
+     * @param beanName
+     * @param args
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public Object getBean(String beanName, Object ... args) throws BeansException {
+        return doGetBean(beanName, args);
+    }
+
+    /**
+     * getBean 的模板方法
+     *
+     * @param beanName
+     * @param args
+     * @return
+     * @param <T>
+     */
+    protected <T> T doGetBean(String beanName, Object[] args) {
         // 1. 获取单例 Bean
         Object bean = getSingleton(beanName);
         if (bean != null) {
-            return bean;
+            return (T) bean;
         }
         // 2. 单例 Bean 不存在则创建 Bean
         BeanDefinition beanDefinition = getBeanDefinition(beanName);
         // 3. 根据 beanDefinition 创建 Bean
-        return createBean(beanName, beanDefinition);
+        return (T) createBean(beanName, beanDefinition, args);
     }
 
     /**
      * 本抽象类只单纯实现getBean
      * 创建 Bean 由子类实现
+     *
+     * 修改：增加入参
+     *
      * @param beanName
      * @param beanDefinition
+     * @param args
      * @return
      */
-    protected abstract Object createBean(String beanName, BeanDefinition beanDefinition) throws BeansException;
+    protected abstract Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException;
 
     /**
      * 根据 beanName 获取 BeanDefinition 信息

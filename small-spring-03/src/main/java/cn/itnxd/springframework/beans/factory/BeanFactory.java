@@ -16,4 +16,13 @@ public interface BeanFactory {
      * @return
      */
     Object getBean(String beanName) throws BeansException;
+
+    /**
+     * 增加有入参的获取 Bean 的接口
+     * @param beanName
+     * @param args
+     * @return
+     * @throws BeansException
+     */
+    Object getBean(String beanName, Object ...args) throws BeansException;
 }
