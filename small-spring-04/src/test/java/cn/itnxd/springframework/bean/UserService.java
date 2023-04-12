@@ -8,28 +8,28 @@ package cn.itnxd.springframework.bean;
  */
 public class UserService {
 
-    private String name;
+    private String id;
 
-    public UserService(String name) {
-        this.name = name;
-    }
+    private UserMapper userMapper;
 
     public void getUserInfo() {
-        System.out.println("查询用户信息: " + this.name);
+        String userInfo = userMapper.getUserInfo(this.id);
+        System.out.println("查询用户信息: " + userInfo);
     }
 
-    public String getName() {
-        return name;
+    public String getId() {
+        return id;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    @Override
-    public String toString() {
-        return "UserService{" +
-                "name='" + name + '\'' +
-                '}';
+    public UserMapper getUserMapper() {
+        return userMapper;
+    }
+
+    public void setUserMapper(UserMapper userMapper) {
+        this.userMapper = userMapper;
     }
 }
