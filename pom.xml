@@ -13,6 +13,7 @@
         <module>small-spring-02</module>
         <module>small-spring-03</module>
         <module>small-spring-04</module>
+        <module>small-spring-05</module>
     </modules>
 
     <properties>
