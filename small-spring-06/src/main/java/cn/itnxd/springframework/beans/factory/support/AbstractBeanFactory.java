@@ -1,16 +1,23 @@
 package cn.itnxd.springframework.beans.factory.support;
 
 import cn.itnxd.springframework.beans.exception.BeansException;
-import cn.itnxd.springframework.beans.factory.BeanFactory;
+import cn.itnxd.springframework.beans.factory.ConfigurableBeanFactory;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
+import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @Author niuxudong
  * @Date 2023/4/9 19:38
  * @Version 1.0
- * @Description 抽象Bean工厂，继承单例实现（具有单例注册能力），实现顶层Bean工厂接口
+ * @Description 抽象Bean工厂，继承单例实现（具有单例注册能力），实现顶层Bean工厂接口（修改：实现ConfigurableBeanFactory）
  */
-public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements BeanFactory {
+public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
+
+    // 增加：持有 beanPostProcessors
+    private List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
     /**
      * 1. 实现顶层 BeanFactory 接口的唯一方法 <br>
@@ -60,6 +67,20 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
     }
 
     /**
+     * 实现新增的方法
+     *
+     * @param beanName
+     * @param type
+     * @return
+     * @param <T>
+     * @throws BeansException
+     */
+    @Override
+    public <T> T getBean(String beanName, Class<T> type) throws BeansException {
+        return (T) getBean(beanName);
+    }
+
+    /**
      * 本抽象类只单纯实现getBean
      * 创建 Bean 由子类实现
      *
@@ -78,4 +99,20 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
      * @return
      */
     protected abstract BeanDefinition getBeanDefinition(String beanName) throws BeansException;
+
+    /**
+     * 实现ConfigurableBeanFactory的添加BeanPostProcessor方法
+     *
+     * @param beanPostProcessor
+     */
+    @Override
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
+        // 有则覆盖
+        this.beanPostProcessors.remove(beanPostProcessor);
+        this.beanPostProcessors.add(beanPostProcessor);
+    }
+
+    public List<BeanPostProcessor> getBeanPostProcessors() {
+        return this.beanPostProcessors;
+    }
 }
