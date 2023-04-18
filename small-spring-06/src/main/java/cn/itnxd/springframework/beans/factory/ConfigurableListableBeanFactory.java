@@ -18,7 +18,7 @@ public interface ConfigurableListableBeanFactory extends ListableBeanFactory, Au
      * @param beanName
      * @return
      */
-    BeanDefinition getBeanDefinitionName(String beanName);
+    BeanDefinition getBeanDefinition(String beanName);
 
     /**
      * 提前实例化所有单例实例的方法

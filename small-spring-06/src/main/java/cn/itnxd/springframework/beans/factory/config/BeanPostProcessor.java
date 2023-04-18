@@ -15,7 +15,7 @@ public interface BeanPostProcessor {
      *
      * @param bean
      * @param beanName
-     * @return
+     * @return 返回处理完成的bean
      * @throws BeansException
      */
     Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException;
@@ -25,7 +25,7 @@ public interface BeanPostProcessor {
      *
      * @param bean
      * @param beanName
-     * @return
+     * @return 返回处理完成的bean
      * @throws BeansException
      */
     Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException;
