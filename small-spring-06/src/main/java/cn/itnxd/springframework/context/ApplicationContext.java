@@ -1,6 +1,8 @@
 package cn.itnxd.springframework.context;
 
+import cn.itnxd.springframework.beans.factory.HierarchicalBeanFactory;
 import cn.itnxd.springframework.beans.factory.ListableBeanFactory;
+import cn.itnxd.springframework.core.io.ResourceLoader;
 
 /**
  * @Author niuxudong
@@ -12,7 +14,8 @@ import cn.itnxd.springframework.beans.factory.ListableBeanFactory;
  *
  *              核心流程逻辑在：AbstractApplicationContext#refresh方法。
  *
- *              本接口为顶层核心接口，暂不定义方法，具有父接口的获取bean的方法，包括根据类型获取
+ *              本接口为顶层核心接口，暂不定义方法，具有父接口的获取bean的方法，包括根据类型获取；以及获取分类BeanFactory；
+ *              以及资源加载器得到资源Resource
  */
-public interface ApplicationContext extends ListableBeanFactory {
+public interface ApplicationContext extends ListableBeanFactory, HierarchicalBeanFactory, ResourceLoader {
 }
