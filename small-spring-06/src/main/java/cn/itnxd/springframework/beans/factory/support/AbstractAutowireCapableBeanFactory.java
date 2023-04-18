@@ -3,7 +3,9 @@ package cn.itnxd.springframework.beans.factory.support;
 import cn.hutool.core.bean.BeanUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.exception.BeansException;
+import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
+import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.BeanReference;
 import cn.itnxd.springframework.beans.factory.config.InstantiationStrategy;
 
@@ -14,8 +16,10 @@ import java.lang.reflect.Constructor;
  * @Date 2023/4/9 19:54
  * @Version 1.0
  * @Description AbstractBeanFactory 的实现类，同样是抽象类，只实现 createBean 方法
+ *
+ *  增加实现接口AutowireCapableBeanFactory，实现beanPostProcessor
  */
-public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory{
+public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
     // 添加：持有实例化策略来根据策略实例化对象(默认为cglib策略)
     private InstantiationStrategy instantiationStrategy = new CglibSubclassingInstantiationStrategy();
@@ -94,6 +98,52 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         } catch (Exception e) {
             throw new BeansException("为 Bean 【" + beanName + "】设置属性失败！");
         }
+    }
+
+    /**
+     * 实现父接口 AutowireCapableBeanFactory 的bean初始化前processor
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public Object applyBeanPostProcessorsBeforeInitialization(Object bean, String beanName) throws BeansException {
+        Object resultBean = bean;
+        // 1. 获取到所有的 BeanPostProcessor
+        for(BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            // 2. 依次执行所有的处理方法
+            Object dealFinishBean = beanPostProcessor.postProcessBeforeInitialization(bean, beanName);
+            if (dealFinishBean == null) {
+                // 3. 处理过程中有问题则返回原始bean
+                return resultBean;
+            }
+            resultBean = dealFinishBean;
+        }
+        return resultBean;
+    }
+
+    /**
+     * 实现父接口 AutowireCapableBeanFactory 的bean初始化后processor
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public Object applyBeanPostProcessorsAfterInitialization(Object bean, String beanName) throws BeansException {
+        Object resultBean = bean;
+        // 1. 获取到所有的 BeanPostProcessor
+        for(BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            // 2. 依次执行所有的处理方法
+            Object dealFinishBean = beanPostProcessor.postProcessAfterInitialization(bean, beanName);
+            if (dealFinishBean == null) {
+                // 3. 处理过程中有问题则返回原始bean
+                return resultBean;
+            }
+            resultBean = dealFinishBean;
+        }
+        return resultBean;
     }
 
     public InstantiationStrategy getInstantiationStrategy() {
