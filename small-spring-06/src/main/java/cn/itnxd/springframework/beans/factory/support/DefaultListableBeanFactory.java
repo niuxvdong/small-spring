@@ -1,10 +1,12 @@
 package cn.itnxd.springframework.beans.factory.support;
 
 import cn.itnxd.springframework.beans.exception.BeansException;
+import cn.itnxd.springframework.beans.factory.ConfigurableListableBeanFactory;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @Author niuxudong
@@ -14,7 +16,7 @@ import java.util.Map;
  *
  *              本类具有了获取 BeanDefinition 和注册 BeanDefinition 的能力
  */
-public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry{
+public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
 
     private Map<String, BeanDefinition> beanDefinitionMap = new HashMap<>();
 
@@ -41,5 +43,47 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
     @Override
     public void registerBeanDefinition(String beanName, BeanDefinition beanDefinition) {
         beanDefinitionMap.put(beanName, beanDefinition);
+    }
+
+    /**
+     * 实现顶层BeanFactory的根据类型获取bean的方法
+     *
+     * @param type
+     * @return
+     * @param <T>
+     * @throws BeansException
+     */
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        Map<String, T> result = new HashMap<>();
+        beanDefinitionMap.forEach((beanName, beanDefinition) -> {
+            Class beanClass = beanDefinition.getBeanClass();
+            if (type.isAssignableFrom(beanClass)) {
+                T bean = (T) getBean(beanName);
+                result.put(beanName, bean);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * 实现ListableBeanFactory的方法
+     * @return
+     */
+    @Override
+    public String[] getBeanDefinitionNames() {
+        Set<String> beanNames = beanDefinitionMap.keySet();
+        return beanNames.toArray(new String[beanNames.size()]);
+    }
+
+    /**
+     * 实现ConfigurableListableBeanFactory的创建单实例方法
+     *
+     * @throws BeansException
+     */
+    @Override
+    public void preInstantiateSingletons() throws BeansException {
+        // 对每个beanName都调用一次get方法即可，从一无所有到全都有
+        beanDefinitionMap.keySet().forEach(this::getBean);
     }
 }
