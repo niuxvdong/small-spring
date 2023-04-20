@@ -42,11 +42,13 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             bean = createBeanInstance(beanName, beanDefinition, args);
             // 2. 对 Bean 进行属性填充
             applyPropertyValues(beanName, beanDefinition, bean);
+            // 3. bean实例化完成，执行初始化方法以及在初始化前后分别执行BeanPostProcessor
+            initializeBean(beanName, beanDefinition, bean);
         } catch (BeansException e) {
             throw new BeansException("初始化Bean失败: ", e);
         }
 
-        // 3. 添加到单例缓存 map
+        // 4. 添加到单例缓存 map
         addSingleton(beanName, bean);
         return bean;
     }
@@ -145,6 +147,40 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         }
         return resultBean;
     }
+
+    /**
+     * bean实例化完成后的初始化流程
+     *
+     * BeanPostProcessor前置处理，初始化方法执行，BeanPostProcessor后置处理
+     *
+     * @param beanName
+     * @param beanDefinition
+     * @param bean
+     * @return
+     */
+    protected Object initializeBean(String beanName, BeanDefinition beanDefinition, Object bean) {
+        // 1. BeanPostProcessor前置处理
+        Object wrapperBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
+
+        // TODO 2. bean 初始化方法执行
+        invokeInitMethods(beanName, wrapperBean, beanDefinition);
+
+        // 3. BeanPostProcessor后置处理
+        wrapperBean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        return wrapperBean;
+    }
+
+    /**
+     * bean实例化完成后的初始化方法执行
+     *
+     * @param beanName
+     * @param wrapperBean
+     * @param beanDefinition
+     */
+    protected void invokeInitMethods(String beanName, Object wrapperBean, BeanDefinition beanDefinition) {
+        // TODO 后面实现
+    }
+
 
     public InstantiationStrategy getInstantiationStrategy() {
         return instantiationStrategy;
