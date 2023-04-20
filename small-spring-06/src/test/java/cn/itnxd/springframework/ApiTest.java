@@ -12,6 +12,8 @@ import cn.itnxd.springframework.beans.factory.support.DefaultListableBeanFactory
 import cn.itnxd.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.itnxd.springframework.core.io.DefaultResourceLoader;
 import cn.itnxd.springframework.core.io.Resource;
+import cn.itnxd.springframework.processor.MyBeanFactoryPostProcessor;
+import cn.itnxd.springframework.processor.MyBeanPostProcessor;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -48,12 +50,23 @@ public class ApiTest {
         // 1. 初始化 BeanFactory
         DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
 
-        // 2. 解析xml
+        // 2. 解析xml，注册bean
         XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
         beanDefinitionReader.loadBeanDefinitions("classpath:spring.xml");
 
-        // 3. 获取bean
+        // 3. 手动注册BeanFactoryProcessor
+        MyBeanFactoryPostProcessor beanFactoryPostProcessor = new MyBeanFactoryPostProcessor();
+        MyBeanPostProcessor beanPostProcessor = new MyBeanPostProcessor();
+        // 实例化之前执行
+        beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+
+        // 4. 注册BeanPostProcessor，初始化前后执行
+        beanFactory.addBeanPostProcessor(beanPostProcessor);
+
+        // 5. 获取bean
         UserService userService = (UserService) beanFactory.getBean("userService");
         userService.getUserInfo();
+
+        System.out.println(userService);
     }
 }
