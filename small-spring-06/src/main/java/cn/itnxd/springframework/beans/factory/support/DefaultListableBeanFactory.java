@@ -58,6 +58,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         Map<String, T> result = new HashMap<>();
         beanDefinitionMap.forEach((beanName, beanDefinition) -> {
             Class beanClass = beanDefinition.getBeanClass();
+            // beanClass 是 type 或者是 type 的子类为true
             if (type.isAssignableFrom(beanClass)) {
                 T bean = (T) getBean(beanName);
                 result.put(beanName, bean);

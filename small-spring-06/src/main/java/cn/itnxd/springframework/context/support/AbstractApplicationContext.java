@@ -128,6 +128,19 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     }
 
     /**
+     * 补充顶层BeanFactory的getBean方法实现
+     *
+     * @param beanName
+     * @param args
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public Object getBean(String beanName, Object... args) throws BeansException {
+        return getBeanFactory().getBean(beanName, args);
+    }
+
+    /**
      * 实现父接口ListableBeanFactory获取所有BeanDefinitionName的方法
      *
      * @return
