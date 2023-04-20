@@ -14,6 +14,8 @@ import java.util.Map;
  * @Date 2023/4/18 21:33
  * @Version 1.0
  * @Description 顶层接口ApplicationContext的抽象实现类，主要实现父接口定义的额refresh流程方法。
+ *
+ * 这里会发现AbstractApplicationContext实现大多数接口时候都是调用的BeanFactory的子类 beans.factory.support包下的实现。
  */
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
 
