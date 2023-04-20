@@ -6,7 +6,7 @@ import cn.itnxd.springframework.beans.exception.BeansException;
  * @Author niuxudong
  * @Date 2023/4/17 22:47
  * @Version 1.0
- * @Description 在 Bean 实例化之后，提供修改Bean实例的机制
+ * @Description 在 Bean 实例化之后，提供修改Bean实例的机制（定义接口，没有具体实现类，由使用框架的人来实现）
  */
 public interface BeanPostProcessor {
 
