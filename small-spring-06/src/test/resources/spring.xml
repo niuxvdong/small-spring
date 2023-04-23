@@ -14,9 +14,7 @@
         注意：若使用ApplicationContext需要将其注册到容器内；
              若使用BeanFactory原始方法，则只需要在测试类中手动new,然后调用添加方法添加到容器
     -->
-<!--
     <bean id="myBeanFactoryPostProcessor" class="cn.itnxd.springframework.processor.MyBeanFactoryPostProcessor"/>
     <bean id="myBeanPostProcessor" class="cn.itnxd.springframework.processor.MyBeanPostProcessor"/>
--->
 
 </beans>

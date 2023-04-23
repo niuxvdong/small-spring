@@ -10,6 +10,7 @@ import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanReference;
 import cn.itnxd.springframework.beans.factory.support.DefaultListableBeanFactory;
 import cn.itnxd.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
 import cn.itnxd.springframework.core.io.DefaultResourceLoader;
 import cn.itnxd.springframework.core.io.Resource;
 import cn.itnxd.springframework.processor.MyBeanFactoryPostProcessor;
@@ -67,6 +68,18 @@ public class ApiTest {
         UserService userService = (UserService) beanFactory.getBean("userService");
         userService.getUserInfo();
 
+        System.out.println(userService);
+    }
+
+    @Test
+    public void test_applicationContext() {
+        // 1. 创建 ApplicationContext （构造器内触发refresh流程）
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        // 2. 获取 bean
+        UserService userService = applicationContext.getBean("userService", UserService.class);
+
+        userService.getUserInfo();
         System.out.println(userService);
     }
 }
