@@ -2,6 +2,7 @@ package cn.itnxd.springframework.beans.factory.config;
 
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.PropertyValues;
+import cn.itnxd.springframework.beans.factory.InitializingBean;
 
 /**
  * @Author niuxudong
@@ -12,6 +13,18 @@ import cn.itnxd.springframework.beans.PropertyValues;
 public class BeanDefinition {
 
     private Class beanClass;
+
+    // 增加：初始化方法名称
+    private String initMethodName;
+
+    /**
+     * 增加：销毁方法名称
+     *
+     * 这两个属性用来保存 spring.xml 配置的 init-method="xxx" destroy-method="xxx" 中的value，以便于反射调用。
+     *
+     * 还有一种是直接实现 initializingBean 和 disposableBean 接口 注册到容器 中，进行接口方式的调用，
+     */
+    private String destroyMethodName;
 
     // 添加：PropertyValue 属性映射集合
     private PropertyValues propertyValues;
@@ -48,5 +61,22 @@ public class BeanDefinition {
 
     public void setPropertyValues(PropertyValues propertyValues) {
         this.propertyValues = propertyValues;
+    }
+
+
+    public String getInitMethodName() {
+        return initMethodName;
+    }
+
+    public void setInitMethodName(String initMethodName) {
+        this.initMethodName = initMethodName;
+    }
+
+    public String getDestroyMethodName() {
+        return destroyMethodName;
+    }
+
+    public void setDestroyMethodName(String destroyMethodName) {
+        this.destroyMethodName = destroyMethodName;
     }
 }
