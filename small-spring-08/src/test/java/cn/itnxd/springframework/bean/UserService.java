@@ -1,8 +1,12 @@
 package cn.itnxd.springframework.bean;
 
 import cn.itnxd.springframework.beans.exception.BeansException;
+import cn.itnxd.springframework.beans.factory.BeanFactory;
+import cn.itnxd.springframework.beans.factory.BeanFactoryAware;
 import cn.itnxd.springframework.beans.factory.DisposableBean;
 import cn.itnxd.springframework.beans.factory.InitializingBean;
+import cn.itnxd.springframework.context.ApplicationContext;
+import cn.itnxd.springframework.context.ApplicationContextAware;
 
 /**
  * @Author niuxudong
@@ -10,7 +14,11 @@ import cn.itnxd.springframework.beans.factory.InitializingBean;
  * @Version 1.0
  * @Description 这里为实现接口方式的初始化和销毁方法
  */
-public class UserService implements InitializingBean, DisposableBean {
+public class UserService implements InitializingBean, DisposableBean, BeanFactoryAware, ApplicationContextAware {
+
+    // 增加属性用来保存aware感知到的容器
+    private ApplicationContext applicationContext;
+    private BeanFactory beanFactory;
 
     private String id;
 
@@ -85,5 +93,23 @@ public class UserService implements InitializingBean, DisposableBean {
     @Override
     public void afterPropertiesSet() throws BeansException {
         System.out.println("执行 userService 的 InitializingBean.afterPropertiesSet");
+    }
+
+    @Override
+    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
+        this.beanFactory = beanFactory;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        this.applicationContext = applicationContext;
+    }
+
+    public ApplicationContext getApplicationContext() {
+        return applicationContext;
+    }
+
+    public BeanFactory getBeanFactory() {
+        return beanFactory;
     }
 }
