@@ -3,6 +3,7 @@ package cn.itnxd.springframework.beans.factory.support;
 import cn.hutool.core.util.StrUtil;
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.DisposableBean;
+import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -26,10 +27,10 @@ public class DisposableBeanAdapter implements DisposableBean {
     private final String beanName;
     private final String destroyMethodName;
 
-    public DisposableBeanAdapter(Object bean, String beanName, String destroyMethodName) {
+    public DisposableBeanAdapter(Object bean, String beanName, BeanDefinition beanDefinition) {
         this.bean = bean;
         this.beanName = beanName;
-        this.destroyMethodName = destroyMethodName;
+        this.destroyMethodName = beanDefinition.getDestroyMethodName();
     }
 
     /**

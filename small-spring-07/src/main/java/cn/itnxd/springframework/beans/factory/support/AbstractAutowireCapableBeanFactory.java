@@ -5,6 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
+import cn.itnxd.springframework.beans.factory.DisposableBean;
 import cn.itnxd.springframework.beans.factory.InitializingBean;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
@@ -52,9 +53,27 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             throw new BeansException("初始化Bean失败: ", e);
         }
 
-        // 4. 添加到单例缓存 map
+        // 4. 增加：初始化完成注册实现了销毁接口的对象
+        registerDisposableBeanIfNecessary(bean, beanName, beanDefinition);
+
+        // 5. 添加到单例缓存 map
         addSingleton(beanName, bean);
         return bean;
+    }
+
+
+    /**
+     * 初始化完成注册实现了销毁接口的对象
+     *
+     * @param bean
+     * @param beanName
+     * @param beanDefinition
+     */
+    private void registerDisposableBeanIfNecessary(Object bean, String beanName, BeanDefinition beanDefinition) {
+        // 接口 或 xml 两种
+        if (bean instanceof DisposableBean || StrUtil.isNotEmpty(beanDefinition.getDestroyMethodName())) {
+            registerDisposableBean(beanName, new DisposableBeanAdapter(bean, beanName, beanDefinition));
+        }
     }
 
     /**
