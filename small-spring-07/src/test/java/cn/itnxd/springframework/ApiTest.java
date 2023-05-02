@@ -76,10 +76,16 @@ public class ApiTest {
         // 1. 创建 ApplicationContext （构造器内触发refresh流程）
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
 
+        // 增加：手动调用注册 shutdownHook 到 runtime（这一步应该做成自动的）
+        //applicationContext.registerShutdownHook();
+
         // 2. 获取 bean
         UserService userService = applicationContext.getBean("userService", UserService.class);
 
         userService.getUserInfo();
         System.out.println(userService);
+
+        // 或者：手动调用 close 方法
+        applicationContext.close();
     }
 }

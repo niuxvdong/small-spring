@@ -1,12 +1,16 @@
 package cn.itnxd.springframework.bean;
 
+import cn.itnxd.springframework.beans.exception.BeansException;
+import cn.itnxd.springframework.beans.factory.DisposableBean;
+import cn.itnxd.springframework.beans.factory.InitializingBean;
+
 /**
  * @Author niuxudong
  * @Date 2023/4/9 18:32
  * @Version 1.0
- * @Description
+ * @Description 这里为实现接口方式的初始化和销毁方法
  */
-public class UserService {
+public class UserService implements InitializingBean, DisposableBean {
 
     private String id;
 
@@ -63,5 +67,23 @@ public class UserService {
                 ", location='" + location + '\'' +
                 ", userMapper=" + userMapper +
                 '}';
+    }
+
+    /**
+     * 实现销毁 bean 接口的收尾方法
+     * @throws BeansException
+     */
+    @Override
+    public void destroy() throws BeansException {
+        System.out.println("执行 userService 的 DisposableBean.destroy");
+    }
+
+    /**
+     * 实现初始化 bean 接口方法
+     * @throws BeansException
+     */
+    @Override
+    public void afterPropertiesSet() throws BeansException {
+        System.out.println("执行 userService 的 InitializingBean.afterPropertiesSet");
     }
 }
