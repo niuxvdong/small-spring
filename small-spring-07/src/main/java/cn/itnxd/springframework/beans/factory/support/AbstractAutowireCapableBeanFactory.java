@@ -169,7 +169,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 2. bean 初始化方法执行
         try {
             invokeInitMethods(beanName, wrapperBean, beanDefinition);
-        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+        } catch (BeansException e) {
             throw new BeansException("执行 bean 初始化方法失败，e: {}", e);
         }
 
@@ -189,7 +189,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @param bean
      * @param beanDefinition
      */
-    protected void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    protected void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws BeansException{
         // 1. 实现了初始化 bean 接口则可以调用 afterPropertiesSet 方法
         if (bean instanceof InitializingBean) {
             ((InitializingBean) bean).afterPropertiesSet();
@@ -197,13 +197,14 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 2. xml 中的 init-method 属性
         String initMethodName = beanDefinition.getInitMethodName();
         if (StrUtil.isNotEmpty(initMethodName)) {
-            // 2.1 反射获取初始化方法
-            Method initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
-            if (initMethod == null) {
+            try {
+                // 2.1 反射获取初始化方法
+                Method initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
+                // 2.2 反射调用初始化方法
+                initMethod.invoke(bean);
+            } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
                 throw new BeansException("找不到xml中定义的 init-method 方法");
             }
-            // 2.2 反射调用初始化方法
-            initMethod.invoke(bean);
         }
     }
 
