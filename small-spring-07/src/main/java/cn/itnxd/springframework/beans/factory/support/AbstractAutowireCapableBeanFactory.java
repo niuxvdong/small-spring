@@ -1,15 +1,19 @@
 package cn.itnxd.springframework.beans.factory.support;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
+import cn.itnxd.springframework.beans.factory.InitializingBean;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.BeanReference;
 import cn.itnxd.springframework.beans.factory.config.InstantiationStrategy;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @Author niuxudong
@@ -162,8 +166,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 1. BeanPostProcessor前置处理
         Object wrapperBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
 
-        // TODO 2. bean 初始化方法执行
-        invokeInitMethods(beanName, wrapperBean, beanDefinition);
+        // 2. bean 初始化方法执行
+        try {
+            invokeInitMethods(beanName, wrapperBean, beanDefinition);
+        } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+            throw new BeansException("执行 bean 初始化方法失败，e: {}", e);
+        }
 
         // 3. BeanPostProcessor后置处理
         wrapperBean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
@@ -173,12 +181,30 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * bean实例化完成后的初始化方法执行
      *
+     * 两种初始化实现方式：
+     *      1、实现 InitializingBean 接口
+     *      2、xml 配置中定义了 init-method 属性
+     *
      * @param beanName
-     * @param wrapperBean
+     * @param bean
      * @param beanDefinition
      */
-    protected void invokeInitMethods(String beanName, Object wrapperBean, BeanDefinition beanDefinition) {
-        // TODO 后面实现
+    protected void invokeInitMethods(String beanName, Object bean, BeanDefinition beanDefinition) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        // 1. 实现了初始化 bean 接口则可以调用 afterPropertiesSet 方法
+        if (bean instanceof InitializingBean) {
+            ((InitializingBean) bean).afterPropertiesSet();
+        }
+        // 2. xml 中的 init-method 属性
+        String initMethodName = beanDefinition.getInitMethodName();
+        if (StrUtil.isNotEmpty(initMethodName)) {
+            // 2.1 反射获取初始化方法
+            Method initMethod = beanDefinition.getBeanClass().getMethod(initMethodName);
+            if (initMethod == null) {
+                throw new BeansException("找不到xml中定义的 init-method 方法");
+            }
+            // 2.2 反射调用初始化方法
+            initMethod.invoke(bean);
+        }
     }
 
 
