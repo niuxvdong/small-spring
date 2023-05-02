@@ -4,9 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.exception.BeansException;
-import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
-import cn.itnxd.springframework.beans.factory.DisposableBean;
-import cn.itnxd.springframework.beans.factory.InitializingBean;
+import cn.itnxd.springframework.beans.factory.*;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.BeanReference;
@@ -182,6 +180,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
      * @return
      */
     protected Object initializeBean(String beanName, BeanDefinition beanDefinition, Object bean) {
+        // 增加：实现BeanFactoryAware接口则向bean设置BeanFactory，即this即可
+        if (bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
+
         // 1. BeanPostProcessor前置处理
         Object wrapperBean = applyBeanPostProcessorsBeforeInitialization(bean, beanName);
 
