@@ -16,4 +16,14 @@ public interface ConfigurableApplicationContext extends ApplicationContext{
      * @throws BeansException
      */
     void refresh() throws BeansException;
+
+    /**
+     * 也是虚拟机关闭时候调用，为我们手动调用的方式（手动）
+     */
+    void close();
+
+    /**
+     * 向虚拟机注册钩子方法，在虚拟机关闭时候调用（自动）
+     */
+    void registerShutdownHook();
 }

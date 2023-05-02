@@ -149,4 +149,32 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     public String[] getBeanDefinitionNames() {
         return getBeanFactory().getBeanDefinitionNames();
     }
+
+    /**
+     * 虚拟机关闭时执行的操作
+     */
+    public void close() {
+        doClose();
+    }
+
+    protected void doClose() {
+        destroyBeans();
+    }
+
+    /**
+     * 真正执行销毁方法的地方
+     */
+    protected void destroyBeans() {
+        getBeanFactory().destroySingletons();
+    }
+
+    /**
+     * 注册 shutdownHook 在虚拟机关闭时候调用 disposableBean.destroy() 方法
+     */
+    public void registerShutdownHook() {
+        // 创建一个线程注入doClose方法在虚拟机关闭时候调用
+        Thread shutdownHook = new Thread(this::doClose);
+        // 虚拟机关闭时候调用
+        Runtime.getRuntime().addShutdownHook(shutdownHook);
+    }
 }
