@@ -82,14 +82,17 @@ public class ApiTest {
         // 2. 获取 bean
         UserService userService = applicationContext.getBean("userService", UserService.class);
 
-        userService.getUserInfo();
-        System.out.println(userService);
+        UserService userService1 = applicationContext.getBean("userService", UserService.class);
 
-        // 获取aware接口感知到的容器对象
-        System.out.println("getApplicationContext: " + userService.getApplicationContext());
-        System.out.println("getBeanFactory: " + userService.getBeanFactory());
-
-        // 或者：手动调用 close 方法
-        applicationContext.close();
+        System.out.println(userService == userService1); // false;
+//        userService.getUserInfo();
+//        System.out.println(userService);
+//
+//        // 获取aware接口感知到的容器对象
+//        System.out.println("getApplicationContext: " + userService.getApplicationContext());
+//        System.out.println("getBeanFactory: " + userService.getBeanFactory());
+//
+//        // 或者：手动调用 close 方法
+//        applicationContext.close();
     }
 }
