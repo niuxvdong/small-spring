@@ -1,6 +1,6 @@
 package cn.itnxd.springframework.context.event;
 
-import cn.itnxd.springframework.context.ApplicationEvent;
+import cn.itnxd.springframework.context.ApplicationContext;
 
 /**
  * @Author niuxudong
@@ -10,7 +10,7 @@ import cn.itnxd.springframework.context.ApplicationEvent;
  */
 public class ContextRefreshedEvent extends ApplicationContextEvent{
 
-    public ContextRefreshedEvent(ApplicationEvent source) {
+    public ContextRefreshedEvent(ApplicationContext source) {
         super(source);
     }
 }

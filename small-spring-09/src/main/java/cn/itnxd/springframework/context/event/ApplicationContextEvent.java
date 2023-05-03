@@ -1,5 +1,6 @@
 package cn.itnxd.springframework.context.event;
 
+import cn.itnxd.springframework.context.ApplicationContext;
 import cn.itnxd.springframework.context.ApplicationEvent;
 
 /**
@@ -10,11 +11,11 @@ import cn.itnxd.springframework.context.ApplicationEvent;
  */
 public abstract class ApplicationContextEvent extends ApplicationEvent {
 
-    public ApplicationContextEvent(ApplicationEvent source) {
+    public ApplicationContextEvent(ApplicationContext source) {
         super(source);
     }
 
-    public ApplicationEvent getApplicationContext() {
-        return (ApplicationEvent) getSource();
+    public ApplicationContext getApplicationContext() {
+        return (ApplicationContext) getSource();
     }
 }
