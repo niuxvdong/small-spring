@@ -17,6 +17,7 @@
         <module>small-spring-06</module>
         <module>small-spring-07</module>
         <module>small-spring-08</module>
+        <module>small-spring-09</module>
     </modules>
 
     <properties>
