@@ -13,6 +13,7 @@ import cn.itnxd.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
 import cn.itnxd.springframework.core.io.DefaultResourceLoader;
 import cn.itnxd.springframework.core.io.Resource;
+import cn.itnxd.springframework.event.CustomEvent;
 import cn.itnxd.springframework.processor.MyBeanFactoryPostProcessor;
 import cn.itnxd.springframework.processor.MyBeanPostProcessor;
 import org.junit.Test;
@@ -96,5 +97,20 @@ public class ApiTest {
 //
 //        // 或者：手动调用 close 方法
 //        applicationContext.close();
+    }
+
+    @Test
+    public void test_event() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+        // 向容器添加事件
+        applicationContext.publishEvent(new CustomEvent(applicationContext, "自定义的发布消息"));
+        // 注册销毁方法或者手动调用close方法(doClose方法中会发布ContextClosedEvent事件)
+        applicationContext.registerShutdownHook();
+
+        /*
+         收到事件【class cn.itnxd.springframework.context.event.ContextRefreshedEvent】消息
+         收到事件【class cn.itnxd.springframework.event.CustomEvent】消息：自定义的发布消息
+         收到事件【class cn.itnxd.springframework.context.event.ContextClosedEvent】消息
+         */
     }
 }
