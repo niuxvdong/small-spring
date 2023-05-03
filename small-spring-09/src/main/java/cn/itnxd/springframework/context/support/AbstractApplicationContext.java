@@ -4,9 +4,14 @@ import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.ConfigurableListableBeanFactory;
 import cn.itnxd.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
+import cn.itnxd.springframework.context.ApplicationEvent;
+import cn.itnxd.springframework.context.ApplicationListener;
 import cn.itnxd.springframework.context.ConfigurableApplicationContext;
+import cn.itnxd.springframework.context.event.ContextRefreshedEvent;
+import cn.itnxd.springframework.context.event.SimpleApplicationEventMulticaster;
 import cn.itnxd.springframework.core.io.DefaultResourceLoader;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -19,10 +24,15 @@ import java.util.Map;
  */
 public abstract class AbstractApplicationContext extends DefaultResourceLoader implements ConfigurableApplicationContext {
 
+    // ApplicationEventMulticaster 的 beanName
+    public static final String APPLICATION_EVENT_MULTICASTER_BEAN_NAME = "applicationEventMulticaster";
+
+    private SimpleApplicationEventMulticaster applicationEventMulticaster;
+
     /**
      * 实现父接口的refresh刷新容器方法
      *
-     * 本类只实现第三步和第四步！
+     *
      *
      * refreshBeanFactory、getBeanFactory 由本抽象类的子类进行实现。
      *
@@ -36,17 +46,66 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         // 2. 获取BeanFactory
         ConfigurableListableBeanFactory beanFactory = getBeanFactory();
 
-        // 增加：refresh 流程增加 processor：ApplicationContextAwareProcessor，拥有感知能力
+        // 3. 增加：refresh 流程增加 processor：ApplicationContextAwareProcessor，拥有感知能力
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
 
-        // 3. bean实例化之前执行BeanFactoryPostProcessor
+        // 4. bean实例化之前执行BeanFactoryPostProcessor
         invokeBeanFactoryPostProcessors(beanFactory);
 
-        // 4. bean初始化之前，注册所有的BeanPostProcessor到容器保存
+        // 5. bean初始化之前，注册所有的BeanPostProcessor到容器保存
         registerBeanPostProcessors(beanFactory);
 
-        // 5. 开始实例化，先实例化单例Bean
+        // 6. 初始化事件发布者
+        initApplicationEventMulticaster();
+
+        // 7. 注册事件监听器
+        registerListeners();
+
+        // 8. 开始实例化，先实例化单例Bean
         beanFactory.preInstantiateSingletons();
+
+        // 9. 发布事件：容器refresh完成事件
+        finishRefresh();
+    }
+
+    /**
+     * 实例化之前初始化 事件广播器/事件发布者
+     */
+    private void initApplicationEventMulticaster() {
+        // 1. 获取 BeanFactory
+        ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+        // 2. 创建 ApplicationEventMulticaster
+        applicationEventMulticaster = new SimpleApplicationEventMulticaster(beanFactory);
+        // 3. 添加到单例池
+        beanFactory.addSingleton(APPLICATION_EVENT_MULTICASTER_BEAN_NAME, applicationEventMulticaster);
+    }
+
+    /**
+     * 初始化完发布者注册监听器
+     */
+    private void registerListeners() {
+        // 1. 获取所有监听器
+        Collection<ApplicationListener> applicationListeners = getBeansOfType(ApplicationListener.class).values();
+        for (ApplicationListener applicationListener : applicationListeners) {
+            // 2. 添加到 Set 中进行保存
+            applicationEventMulticaster.addApplicationListener(applicationListener);
+        }
+    }
+
+    /**
+     * refresh 完成后，发布容器刷新完成事件
+     */
+    private void finishRefresh() {
+        publishEvent(new ContextRefreshedEvent(this));
+    }
+
+    /**
+     *
+     * @param event
+     */
+    @Override
+    public void publishEvent(ApplicationEvent event) {
+        applicationEventMulticaster.multicastEvent(event);
     }
 
     /**
