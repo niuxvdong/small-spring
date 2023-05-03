@@ -7,6 +7,7 @@ import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 import cn.itnxd.springframework.context.ApplicationEvent;
 import cn.itnxd.springframework.context.ApplicationListener;
 import cn.itnxd.springframework.context.ConfigurableApplicationContext;
+import cn.itnxd.springframework.context.event.ContextClosedEvent;
 import cn.itnxd.springframework.context.event.ContextRefreshedEvent;
 import cn.itnxd.springframework.context.event.SimpleApplicationEventMulticaster;
 import cn.itnxd.springframework.core.io.DefaultResourceLoader;
@@ -220,6 +221,10 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     }
 
     protected void doClose() {
+
+        // 增加发布容器关闭事件
+        this.publishEvent(new ContextClosedEvent(this));
+
         destroyBeans();
     }
 
