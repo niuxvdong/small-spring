@@ -17,5 +17,5 @@ import cn.itnxd.springframework.core.io.ResourceLoader;
  *              本接口为顶层核心接口，暂不定义方法，具有父接口的获取bean的方法，包括根据类型获取；以及获取分类BeanFactory；
  *              以及资源加载器得到资源Resource
  */
-public interface ApplicationContext extends ListableBeanFactory, HierarchicalBeanFactory, ResourceLoader {
+public interface ApplicationContext extends ListableBeanFactory, HierarchicalBeanFactory, ResourceLoader, ApplicationEventPublisher {
 }
