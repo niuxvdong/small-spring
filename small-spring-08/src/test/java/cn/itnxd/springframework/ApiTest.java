@@ -80,11 +80,13 @@ public class ApiTest {
         //applicationContext.registerShutdownHook();
 
         // 2. 获取 bean
-        UserService userService = applicationContext.getBean("userService", UserService.class);
+        //UserService userService = applicationContext.getBean("userService", UserService.class);
 
-        UserService userService1 = applicationContext.getBean("userService", UserService.class);
+        Object userService = applicationContext.getBean("userService");
 
-        System.out.println(userService == userService1); // false;
+        // userService: class cn.itnxd.springframework.bean.Car
+        System.out.println("userService: " + userService.getClass());
+
 //        userService.getUserInfo();
 //        System.out.println(userService);
 //

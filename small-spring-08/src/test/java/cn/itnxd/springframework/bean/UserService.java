@@ -1,10 +1,7 @@
 package cn.itnxd.springframework.bean;
 
 import cn.itnxd.springframework.beans.exception.BeansException;
-import cn.itnxd.springframework.beans.factory.BeanFactory;
-import cn.itnxd.springframework.beans.factory.BeanFactoryAware;
-import cn.itnxd.springframework.beans.factory.DisposableBean;
-import cn.itnxd.springframework.beans.factory.InitializingBean;
+import cn.itnxd.springframework.beans.factory.*;
 import cn.itnxd.springframework.context.ApplicationContext;
 import cn.itnxd.springframework.context.ApplicationContextAware;
 
@@ -14,7 +11,7 @@ import cn.itnxd.springframework.context.ApplicationContextAware;
  * @Version 1.0
  * @Description 这里为实现接口方式的初始化和销毁方法
  */
-public class UserService implements InitializingBean, DisposableBean, BeanFactoryAware, ApplicationContextAware {
+public class UserService implements InitializingBean, DisposableBean, BeanFactoryAware, ApplicationContextAware, FactoryBean<Car> {
 
     // 增加属性用来保存aware感知到的容器
     private ApplicationContext applicationContext;
@@ -111,5 +108,15 @@ public class UserService implements InitializingBean, DisposableBean, BeanFactor
 
     public BeanFactory getBeanFactory() {
         return beanFactory;
+    }
+
+    @Override
+    public Car getObject() throws Exception {
+        return new Car();
+    }
+
+    @Override
+    public boolean isSingleton() {
+        return true;
     }
 }
