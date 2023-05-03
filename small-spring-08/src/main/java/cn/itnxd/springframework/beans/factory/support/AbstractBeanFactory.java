@@ -2,11 +2,14 @@ package cn.itnxd.springframework.beans.factory.support;
 
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.ConfigurableBeanFactory;
+import cn.itnxd.springframework.beans.factory.FactoryBean;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @Author niuxudong
@@ -18,6 +21,8 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     // 增加：持有 beanPostProcessors
     private List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+
+    private Map<String, Object> factoryBeanObjectCache = new HashMap<>();
 
     /**
      * 1. 实现顶层 BeanFactory 接口的唯一方法 <br>
@@ -58,12 +63,39 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
         // 1. 获取单例 Bean
         Object bean = getSingleton(beanName);
         if (bean != null) {
-            return (T) bean;
+            // 1.1 获取到的bean非空则需要判断是否实现了工厂bean接口（包装一个方法进行实现）
+            return getObjectForBeanInstance(bean, beanName);
         }
         // 2. 单例 Bean 不存在则创建 Bean
         BeanDefinition beanDefinition = getBeanDefinition(beanName);
         // 3. 根据 beanDefinition 创建 Bean
-        return (T) createBean(beanName, beanDefinition, args);
+        bean = createBean(beanName, beanDefinition, args);
+        // 3.1 bean 为空且创建完成后，同样需要判断是否实现了工厂bean接口
+        return getObjectForBeanInstance(bean, beanName);
+    }
+
+    private <T> T getObjectForBeanInstance(Object bean, String beanName) {
+        Object obj = bean;
+        if (bean instanceof FactoryBean) {
+            FactoryBean<?> factoryBean = (FactoryBean<?>) bean;
+            // 1. 工厂bean是单例，则从缓存map中取出
+            try {
+                if (factoryBean.isSingleton()) {
+                    obj = this.factoryBeanObjectCache.get(beanName);
+                    if (obj == null) {
+                        // 2. 缓存中没有，则调用getObject来获取并存到缓存中
+                        obj = factoryBean.getObject();
+                        this.factoryBeanObjectCache.put(beanName, obj);
+                    }
+                } else {
+                    // 3. 工厂bean是prototype，则无需添加到缓存
+                    obj = factoryBean.getObject();
+                }
+            } catch (Exception e) {
+                throw new BeansException("工厂bean抛出异常，e: {}", e);
+            }
+        }
+        return (T) obj;
     }
 
     /**
