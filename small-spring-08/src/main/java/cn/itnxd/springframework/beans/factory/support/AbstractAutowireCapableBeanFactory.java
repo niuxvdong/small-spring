@@ -66,6 +66,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     /**
      * 初始化完成注册实现了销毁接口的对象
      *
+     * prototype类型的bean每次请求都是一个新创建的，没有向单例bean一样被缓存起来，因此并不会受到容器的管理，也就无需注册销毁方法。
+     * 在每次使用完成后由于没有被缓存是会被销毁掉，单例bean不会在使用后被销毁因此需要注册销毁方法在容器关闭前进行统一销毁。
+     *
      * @param bean
      * @param beanName
      * @param beanDefinition
