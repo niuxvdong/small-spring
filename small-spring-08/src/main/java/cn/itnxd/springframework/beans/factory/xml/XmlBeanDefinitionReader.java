@@ -116,6 +116,8 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             String id = bean.getAttribute("id");
             String name = bean.getAttribute("name");
             String className = bean.getAttribute("class");
+            // 增加xml配置中bean作用域解析
+            String scope = bean.getAttribute("scope");
 
             // 增加xml配置中 init-method 和 destroy-method 属性的读取和保存
             String initMethod = bean.getAttribute("init-method");
@@ -137,6 +139,11 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             // 将 init-method 和 destroy-method 属性值进行保存
             beanDefinition.setInitMethodName(initMethod);
             beanDefinition.setDestroyMethodName(destroyMethod);
+
+            // 增加bean作用域设置
+            if (StrUtil.isNotEmpty(scope)) {
+                beanDefinition.setScope(scope);
+            }
 
             // 9. 解析bean标签的子标签填充BeanDefinition的属性信息
             for (int j = 0; j < bean.getChildNodes().getLength(); j ++) {
