@@ -453,7 +453,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 }
 ```
 
-#### AbstractBeanFactory 增加 ConfigurableBeanFactory 实现 addBeanPostProcessor 方法
+### 4、AbstractBeanFactory 增加 ConfigurableBeanFactory 实现 addBeanPostProcessor 方法
 
 - 修改 getBean 方法为调用 doGetBean
 - 实现顶层 BeanFactory 新添加的 getBean 方法 
@@ -565,7 +565,7 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
 ```
 
-#### AbstractAutowireCapableBeanFactory 增加接口 AutowireCapableBeanFactory，实现两个前后置 beanPostProcessor 方法
+### 5、AbstractAutowireCapableBeanFactory 增加接口 AutowireCapableBeanFactory，实现两个前后置 beanPostProcessor 方法
 
 - 实现接口 AutowireCapableBeanFactory 的两个前后置方法的调用
 - createBean 方法增加 initializeBean 流程，即在初始化前后执行 AutowireCapableBeanFactory 接口的前后置方法
@@ -695,5 +695,156 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
 }
-
 ```
+
+### 6、DefaultListableBeanFactory 增加接口 ConfigurableListableBeanFactory 实现，主要实现实例化单例 bean 方法
+
+- 实现 preInstantiateSingletons 方法，实现逻辑就是对 beanDefinitionMap 中的 beanName 都做一次 getBean 的调用即可
+- 同时实现 ListableBeanFactory 的两个拓展获取 Bean 的方法以及获取所有 beanName 的方法。
+
+```java
+public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFactory implements BeanDefinitionRegistry, ConfigurableListableBeanFactory {
+
+    // 省略旧代码 ...
+
+    /**
+     * 实现顶层BeanFactory的根据类型获取bean的方法
+     *
+     * @param type
+     * @return
+     * @param <T>
+     * @throws BeansException
+     */
+    @Override
+    public <T> Map<String, T> getBeansOfType(Class<T> type) throws BeansException {
+        Map<String, T> result = new HashMap<>();
+        beanDefinitionMap.forEach((beanName, beanDefinition) -> {
+            Class beanClass = beanDefinition.getBeanClass();
+            // beanClass 是 type 或者是 type 的子类为true
+            if (type.isAssignableFrom(beanClass)) {
+                T bean = (T) getBean(beanName);
+                result.put(beanName, bean);
+            }
+        });
+        return result;
+    }
+
+    /**
+     * 实现ListableBeanFactory的方法
+     * @return
+     */
+    @Override
+    public String[] getBeanDefinitionNames() {
+        Set<String> beanNames = beanDefinitionMap.keySet();
+        return beanNames.toArray(new String[beanNames.size()]);
+    }
+
+    /**
+     * 实现ConfigurableListableBeanFactory的创建单实例方法
+     *
+     * @throws BeansException
+     */
+    @Override
+    public void preInstantiateSingletons() throws BeansException {
+        // 对每个beanName都调用一次get方法即可，从一无所有到全都有
+        beanDefinitionMap.keySet().forEach(this::getBean);
+    }
+}
+```
+
+### 7、AbstractRefreshableApplicationContext 继承 AbstractApplicationContext，实现抽象父类没有实现的两个方法 refreshBeanFactory、getBeanFactory
+
+- 本类持有一个 beanFactory，也就是最底层的实现类 DefaultListableBeanFactory
+- 实现抽象父类的 refreshBeanFactory 方法，即创建了一个 DefaultListableBeanFactory 保存了起来（这里 ApplicationContext 拥有了 BeanFactory 的所有功能。），并在创建完 beanFactory 后开始装载 beanDefinition 信息到容器。（由子类进行实现）
+- 实现抽象父类的 getBeanFactory 方法，即返回保存起来的 beanFactory 实例。
+
+
+```java
+public abstract class AbstractRefreshableApplicationContext extends AbstractApplicationContext{
+
+    private DefaultListableBeanFactory beanFactory;
+
+    /**
+     * 实现抽象父类的刷新BeanFactory方法
+     *
+     * @throws BeansException
+     */
+    @Override
+    protected void refreshBeanFactory() throws BeansException {
+        // 1. 创建BeanFactory
+        DefaultListableBeanFactory beanFactory = createBeanFactory();
+        this.beanFactory = beanFactory;
+        // 2. 加载BeanDefinition信息到容器
+        loadBeanDefinitions(beanFactory);
+    }
+
+    /**
+     * 创建一个我们之前实现的最底层的工厂，即DefaultListableBeanFactory。
+     *
+     * 这里ApplicationContext拥有了BeanFactory的所有功能。
+     *
+     * @return
+     */
+    private DefaultListableBeanFactory createBeanFactory() {
+        return new DefaultListableBeanFactory();
+    }
+
+    /**
+     * 加载所有BeanDefinition信息到容器，本方法由子类实现。
+     *
+     * @param beanFactory
+     */
+    protected abstract void loadBeanDefinitions(DefaultListableBeanFactory beanFactory);
+
+    /**
+     * 获取创建的BeanFactory
+     *
+     * @return
+     */
+    @Override
+    protected ConfigurableListableBeanFactory getBeanFactory() {
+        return beanFactory;
+    }
+}
+```
+
+### 8、AbstractXmlApplicationContext 实现加载配置文件方法
+
+- 主要实现父类 AbstractRefreshableApplicationContext 定义的加载 BeanDefinition 信息方法
+- 创建 BeanDefinitionReader ，即 XmlBeanDefinitionReader 用于读取 xml 配置文件加载 beanDefinition 信息进行保存
+- 构造器中注入的 ResourceLoader 是 this，本类的父类是继承过 DefaultResourceLoader，因此这里可以直接注入。
+- getConfigLocations 方法由子类进行实现，这个子类就是 **ClassPathXmlApplicationContext** 这个底层 applicationContext 容器。
+
+```java
+public abstract class AbstractXmlApplicationContext extends AbstractRefreshableApplicationContext{
+
+    /**
+     * 解析配置得到BeanDefinition信息注册到容器中
+     *
+     * @param beanFactory
+     */
+    @Override
+    protected void loadBeanDefinitions(DefaultListableBeanFactory beanFactory) {
+        // 传入BeanDefinitionRegistry 和 ResourceLoader
+        // AbstractRefreshableApplicationContext继承AbstractApplicationContext继承DefaultResourceLoader
+        // 1. 创建BeanDefinition读取器
+        XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory, this);
+        // 2. 获取配置文件路径地址，由子类实现
+        String[] configLocations = getConfigLocations();
+        if (configLocations != null) {
+            // 3. 交给读取器获取到Resource进而获取到InputStream进而解析流得到BeanDefinition注册到容器中（DefaultListableBeanFactory）
+            beanDefinitionReader.loadBeanDefinitions(configLocations);
+        }
+    }
+
+    /**
+     * 获取配置路径，由子类实现
+     *
+     * @return
+     */
+    protected abstract String[] getConfigLocations();
+}
+```
+
+### 9、ClassPathXmlApplicationContext 实现配置传入以及开启整个容器的 refresh 流程
+
