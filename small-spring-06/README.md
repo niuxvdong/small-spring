@@ -227,6 +227,7 @@ public interface ConfigurableListableBeanFactory extends ListableBeanFactory, Au
 
 #### BeanFactoryPostProcessor
 
+- 本类只是定义接口，没有具体实现类，由使用框架的人来实现，refresh 流程会进行扫描注册
 - BeanFactoryPostProcessor 的执行时间是：**会在 BeanDefinition 注册完成后，Bean实例化之前**，提供**修改 BeanDefinition 属性**的机制
 - 具体执行流程详见下方关于 **ApplicationContext 的 refresh 流程**
 
@@ -245,6 +246,7 @@ public interface BeanFactoryPostProcessor {
 
 #### BeanPostProcessor
 
+- 本类只是定义接口，没有具体实现类，由使用框架的人来实现，refresh 流程会进行扫描注册
 - BeanPostProcessor 的执行时间是：在 bean 对象被实例化之后（**createBeanInstance**）、设置完属性之后（**applyPropertyValues**），进行 BeanPostProcessors 的前后置处理（**initializeBean**）
 - 提供**修改 Bean** 的机制
 
@@ -571,27 +573,6 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 - createBean 方法增加 initializeBean 流程，即在初始化前后执行 AutowireCapableBeanFactory 接口的前后置方法
  
 ```java
-package cn.itnxd.springframework.beans.factory.support;
-
-import cn.hutool.core.bean.BeanUtil;
-import cn.itnxd.springframework.beans.PropertyValue;
-import cn.itnxd.springframework.beans.exception.BeansException;
-import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
-import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
-import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
-import cn.itnxd.springframework.beans.factory.config.BeanReference;
-import cn.itnxd.springframework.beans.factory.config.InstantiationStrategy;
-
-import java.lang.reflect.Constructor;
-
-/**
- * @Author niuxudong
- * @Date 2023/4/9 19:54
- * @Version 1.0
- * @Description AbstractBeanFactory 的实现类，同样是抽象类，只实现 createBean 方法
- *
- *  增加实现接口AutowireCapableBeanFactory，实现beanPostProcessor
- */
 public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFactory implements AutowireCapableBeanFactory {
 
     // 其他无关内容省略 ...
@@ -848,3 +829,93 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableA
 
 ### 9、ClassPathXmlApplicationContext 实现配置传入以及开启整个容器的 refresh 流程
 
+- 本类就是最底层的 **ApplicationContext 的底层实现类**，主要功能是 添加配置文件获取能力，并开启整个容器的 refresh 流程
+- 构造器中传入配置文件路径，然后再构造器中开启核心的 **refresh** 流程
+
+```java
+public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContext{
+
+    private String[] configLocations;
+
+    /**
+     * 空参构造
+     */
+    public ClassPathXmlApplicationContext() throws BeansException {
+    }
+
+    /**
+     * 单配置构造
+     * @param configLocation
+     */
+    public ClassPathXmlApplicationContext(String configLocation) throws BeansException {
+        this(new String[]{configLocation});
+    }
+
+    /**
+     * 多配置构造，传入xml配置路径后，调用refresh开启真个容器刷新流程：
+     *      包括：容器创建，加载BeanDefinition到容器，执行BeanFactoryPostProcessor
+     *          注册所有的BeanPostProcessor，进行单例bean预实例化（即调用getBean方法）
+     *
+     * @param configLocations
+     */
+    public ClassPathXmlApplicationContext(String[] configLocations) throws BeansException {
+        this.configLocations = configLocations;
+
+        // 核心步骤：启动整个容器刷新流程
+        refresh();
+    }
+
+    @Override
+    protected String[] getConfigLocations() {
+        return this.configLocations;
+    }
+}
+```
+
+## 三、简单测试
+
+- 具体测试类不进行详细展示，具体请查看 test 包下的内容
+- BeanFactory 的测试，增加了 手动注册 BeanFactoryProcessor、手动调用 postProcessBeanFactory 方法执行；包括增加了手动注册BeanPostProcessor、手动调用 beanFactory.addBeanPostProcessor 方法进行注册
+- ApplicationContext 的测试：相对来说就会简单很多，上面的手动注册都会在 refresh 流程中被自动进行，无需手动操作。只需要 new 一个 ClassPathXmlApplicationContext，传入 xml 配置文件路径即可。构造器中会自动调用 refresh 流程将整个容器运行起来。
+
+```java
+public class ApiTest {
+
+    @Test
+    public void test_BeanFactory() {
+        // 1. 初始化 BeanFactory
+        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
+
+        // 2. 解析xml，注册bean
+        XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
+        beanDefinitionReader.loadBeanDefinitions("classpath:spring.xml");
+
+        // 3. 手动注册BeanFactoryProcessor
+        MyBeanFactoryPostProcessor beanFactoryPostProcessor = new MyBeanFactoryPostProcessor();
+        MyBeanPostProcessor beanPostProcessor = new MyBeanPostProcessor();
+        // 实例化之前执行
+        beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
+
+        // 4. 注册BeanPostProcessor，初始化前后执行
+        beanFactory.addBeanPostProcessor(beanPostProcessor);
+
+        // 5. 获取bean
+        UserService userService = (UserService) beanFactory.getBean("userService");
+        userService.getUserInfo();
+
+        System.out.println(userService);
+    }
+
+    @Test
+    public void test_applicationContext() {
+        // 1. 创建 ApplicationContext （构造器内触发refresh流程）
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        // 2. 获取 bean
+        UserService userService = applicationContext.getBean("userService", UserService.class);
+
+        userService.getUserInfo();
+        System.out.println(userService);
+    }
+}
+```
