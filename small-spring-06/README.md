@@ -872,6 +872,36 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 }
 ```
 
+## 三、类继承图
+
+- 经过上面的实现流程，再来看这个图就比较清晰了
+- 整个继承图中并没有看到 BeanFactory 的具体最底层实现类的身影，这是因为 AbstractRefreshableApplicationContext 中持有了 DefaultListableBeanFactory 的实例，并没有体现在继承树中。
+- ApplicationContext 对 BeanFactory 的所有操作都是通过 AbstractRefreshableApplicationContext 的 getBeanFactory 方法返回这个持有的 BeanFactory 实例进行调用 DefaultListableBeanFactory 的所有实现进行对 ApplicationContext 的实现的。
+
+![ApplicationContext 继承图示](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/24_22_22_4_202305242222751.png)
+
+**在本章中，我们实现了 ApplicationContext 的 refresh 流程的如下几个步骤：**
+
+```java
+@Override
+public void refresh() throws BeansException {
+    // 1. 刷新BeanFactory：创建BeanFactory，加载BeanDefinition到工厂
+    refreshBeanFactory();
+
+    // 2. 获取BeanFactory
+    ConfigurableListableBeanFactory beanFactory = getBeanFactory();
+
+    // 3. bean实例化之前执行BeanFactoryPostProcessor
+    invokeBeanFactoryPostProcessors(beanFactory);
+
+    // 4. bean初始化之前，注册所有的BeanPostProcessor到容器保存
+    registerBeanPostProcessors(beanFactory);
+
+    // 5. 开始实例化，先实例化单例Bean
+    beanFactory.preInstantiateSingletons();
+}
+```
+
 ## 三、简单测试
 
 - 具体测试类不进行详细展示，具体请查看 test 包下的内容
