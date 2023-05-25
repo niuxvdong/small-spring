@@ -12,3 +12,6 @@
 5. [第五章 - 实现资源加载器加载 xml 文件注册 Bean](https://github.com/niuxvdong/small-spring/blob/master/small-spring-05/README.md)
 6. [第六章 - 应用上下文 ApplicationContext 实现](https://github.com/niuxvdong/small-spring/blob/master/small-spring-06/README.md)
 7. [第七章 - 增加初始化方法和销毁方法](https://github.com/niuxvdong/small-spring/blob/master/small-spring-07/README.md)
+8. [第八章 - 实现 Aware 接口使子类可以感知到容器对象（一）](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-1.md)
+9. [第八章 - 实现 Bean 作用域以及 FactoryBean （二）](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-2.md)
+

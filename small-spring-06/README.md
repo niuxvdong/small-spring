@@ -874,11 +874,25 @@ public class ClassPathXmlApplicationContext extends AbstractXmlApplicationContex
 
 ## 三、类继承图
 
+### ApplicationContext 继承图示
+
 - 经过上面的实现流程，再来看这个图就比较清晰了
 - 整个继承图中并没有看到 BeanFactory 的具体最底层实现类的身影，这是因为 AbstractRefreshableApplicationContext 中持有了 DefaultListableBeanFactory 的实例，并没有体现在继承树中。
 - ApplicationContext 对 BeanFactory 的所有操作都是通过 AbstractRefreshableApplicationContext 的 getBeanFactory 方法返回这个持有的 BeanFactory 实例进行调用 DefaultListableBeanFactory 的所有实现进行对 ApplicationContext 的实现的。
 
 ![ApplicationContext 继承图示](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/24_22_22_4_202305242222751.png)
+
+### Bean 生命周期图示
+
+- 从bean的角度看，目前生命周期如下：
+
+![ApplicationContext 生命周期图示](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/25_22_25_14_202305252225525.png)
+
+
+### DefaultListableBeanFactory 继承图示
+
+![DefaultListableBeanFactory 继承图示](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/25_22_22_24_202305252222627.png)
+
 
 **在本章中，我们实现了 ApplicationContext 的 refresh 流程的如下几个步骤：**
 
