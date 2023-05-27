@@ -35,11 +35,12 @@ public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
     }
 
     /**
-     * 一个 protected 方法，保存单例对象到 map 中
+     * 一个 public 方法，保存单例对象到 map 中
      * 可以被继承本类的子类调用，主要包括：AbstractBeanFactory 以及继承的 DefaultListableBeanFactory 调用
      * @param beanName
      * @param singletonObject
      */
+    @Override
     public void addSingleton(String beanName, Object singletonObject) {
         singletonObjects.put(beanName, singletonObject);
     }
