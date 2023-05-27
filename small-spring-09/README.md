@@ -506,7 +506,17 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 
 ```
 
-## 三、简单测试
+## 三、最新继承图示
+
+- AbstractApplicationContext 持有 ApplicationEventMulticaster 分发器
+- ApplicationEventMulticaster 会传入 ApplicationEvent 参数
+- ApplicationEventMulticaster 会通过 getBean 获取所有的 ApplicationListener
+- ApplicationContext 继承自 ApplicationEventPublisher 来注册事件发布，调用 ApplicationEventMulticaster 处理。
+
+![ClassPathXmlApplicationContext](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/27_20_38_34_202305272038096.png)
+
+
+## 四、简单测试
 
 - 具体代码见 test 包内容
 
