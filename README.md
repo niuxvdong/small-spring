@@ -16,6 +16,6 @@
 7. [第七章 - 增加初始化方法和销毁方法](https://github.com/niuxvdong/small-spring/blob/master/small-spring-07/README.md)
 8. [第八章 - 实现 Aware 接口使子类可以感知到容器对象（一）](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-1.md)
 9. [第八章 - 实现 Bean 作用域以及 FactoryBean （二）](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-2.md)
-10. [第九章 - 容器事件和事件监听器](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-2.md)
+10. [第九章 - 容器事件和事件监听器](https://github.com/niuxvdong/small-spring/blob/master/small-spring-09/README.md)
 
 ## AOP 篇
