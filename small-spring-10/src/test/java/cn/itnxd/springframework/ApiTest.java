@@ -1,19 +1,15 @@
 package cn.itnxd.springframework;
 
-import cn.hutool.core.io.IoUtil;
+import cn.itnxd.springframework.aop.AdvisedSupport;
+import cn.itnxd.springframework.aop.TargetSource;
 import cn.itnxd.springframework.aop.aspectj.AspectJExpressionPointcut;
+import cn.itnxd.springframework.aop.framework.CglibAopProxy;
+import cn.itnxd.springframework.aop.framework.JdkDynamicAopProxy;
 import cn.itnxd.springframework.bean.UserService;
-import cn.itnxd.springframework.beans.factory.support.DefaultListableBeanFactory;
-import cn.itnxd.springframework.beans.factory.xml.XmlBeanDefinitionReader;
-import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
-import cn.itnxd.springframework.core.io.DefaultResourceLoader;
-import cn.itnxd.springframework.core.io.Resource;
-import cn.itnxd.springframework.event.CustomEvent;
-import cn.itnxd.springframework.processor.MyBeanFactoryPostProcessor;
-import cn.itnxd.springframework.processor.MyBeanPostProcessor;
+import cn.itnxd.springframework.bean.UserServiceImpl;
+import cn.itnxd.springframework.interceptor.UserServiceInterceptor;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.lang.reflect.Method;
 
 /**
@@ -25,92 +21,6 @@ import java.lang.reflect.Method;
 public class ApiTest {
 
     @Test
-    public void test_resource() throws IOException {
-        // classpath 文件
-        DefaultResourceLoader resourceLoader = new DefaultResourceLoader();
-        Resource resource = resourceLoader.getResource("classpath:hello.txt");
-        String res = IoUtil.readUtf8(resource.getInputStream());
-        System.out.println(res);
-
-        // url 流
-        Resource urlResource = resourceLoader.getResource("https://www.baidu.com");
-        String urlRes = IoUtil.readUtf8(urlResource.getInputStream());
-        System.out.println(urlRes);
-
-        // 本地文件流
-        Resource fileResource = resourceLoader.getResource("src/main/resources/hello.txt");
-        String fileRes = IoUtil.readUtf8(fileResource.getInputStream());
-        System.out.println(fileRes);
-    }
-
-    @Test
-    public void test_BeanFactory() {
-        // 1. 初始化 BeanFactory
-        DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
-
-        // 2. 解析xml，注册bean
-        XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
-        beanDefinitionReader.loadBeanDefinitions("classpath:spring.xml");
-
-        // 3. 手动注册BeanFactoryProcessor
-        MyBeanFactoryPostProcessor beanFactoryPostProcessor = new MyBeanFactoryPostProcessor();
-        MyBeanPostProcessor beanPostProcessor = new MyBeanPostProcessor();
-        // 实例化之前执行
-        beanFactoryPostProcessor.postProcessBeanFactory(beanFactory);
-
-        // 4. 注册BeanPostProcessor，初始化前后执行
-        beanFactory.addBeanPostProcessor(beanPostProcessor);
-
-        // 5. 获取bean
-        UserService userService = (UserService) beanFactory.getBean("userService");
-        userService.getUserInfo();
-
-        System.out.println(userService);
-    }
-
-    @Test
-    public void test_applicationContext() {
-        // 1. 创建 ApplicationContext （构造器内触发refresh流程）
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
-
-        // 增加：手动调用注册 shutdownHook 到 runtime（这一步应该做成自动的）
-        //applicationContext.registerShutdownHook();
-
-        // 2. 获取 bean
-        //UserService userService = applicationContext.getBean("userService", UserService.class);
-
-        Object userService = applicationContext.getBean("userService");
-
-        // userService: class cn.itnxd.springframework.bean.Car
-        System.out.println("userService: " + userService.getClass());
-
-//        userService.getUserInfo();
-//        System.out.println(userService);
-//
-//        // 获取aware接口感知到的容器对象
-//        System.out.println("getApplicationContext: " + userService.getApplicationContext());
-//        System.out.println("getBeanFactory: " + userService.getBeanFactory());
-//
-//        // 或者：手动调用 close 方法
-//        applicationContext.close();
-    }
-
-    @Test
-    public void test_event() {
-        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
-        // 向容器添加事件
-        applicationContext.publishEvent(new CustomEvent(applicationContext, "自定义的发布消息"));
-        // 注册销毁方法或者手动调用close方法(doClose方法中会发布ContextClosedEvent事件)
-        applicationContext.registerShutdownHook();
-
-        /*
-         收到事件【class cn.itnxd.springframework.context.event.ContextRefreshedEvent】消息
-         收到事件【class cn.itnxd.springframework.event.CustomEvent】消息：自定义的发布消息
-         收到事件【class cn.itnxd.springframework.context.event.ContextClosedEvent】消息
-         */
-    }
-
-    @Test
     public void test_aop() throws NoSuchMethodException {
         AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* cn.itnxd.springframework.bean.UserService.*(..))");
         Class<UserService> clazz = UserService.class;
@@ -119,5 +29,45 @@ public class ApiTest {
         System.out.println(pointcut.matches(clazz));
 
         System.out.println(pointcut.matches(method, clazz));
+    }
+
+
+    @Test
+    public void test_proxy() throws NoSuchMethodException {
+
+        // 目标对象
+        UserService userService = new UserServiceImpl();
+
+        AdvisedSupport advisedSupport = new AdvisedSupport();
+        // 包装需要代理的目标对象
+        advisedSupport.setTargetSource(new TargetSource(userService));
+        // 创建用户实现的方法拦截器
+        advisedSupport.setMethodInterceptor(new UserServiceInterceptor());
+        // 创建方法匹配器
+        advisedSupport.setMethodMatcher(new AspectJExpressionPointcut("execution(* cn.itnxd.springframework.bean.UserService.*(..))").getMethodMatcher());
+
+        // 创建 jdk 代理对象
+        UserService jdkProxy = (UserService) new JdkDynamicAopProxy(advisedSupport).getProxy();
+
+        // 创建 cglib 代理对象
+        UserService cglibProxy = (UserService) new CglibAopProxy(advisedSupport).getProxy();
+
+        jdkProxy.getUserInfo(); // 拦截的类是 UserService 接口
+
+        cglibProxy.getUserInfo(); // 拦截的类是 UserServiceImpl
+
+        /*
+        查询用户信息: xxx
+        ===========监控-开始===========
+        方法名称：public abstract void cn.itnxd.springframework.bean.UserService.getUserInfo()
+        方法耗时：4ms
+        ===========监控-结束===========
+
+        查询用户信息: xxx
+        ===========监控-开始===========
+        方法名称：public void cn.itnxd.springframework.bean.UserServiceImpl.getUserInfo()
+        方法耗时：17ms
+        ===========监控-结束===========
+        */
     }
 }
