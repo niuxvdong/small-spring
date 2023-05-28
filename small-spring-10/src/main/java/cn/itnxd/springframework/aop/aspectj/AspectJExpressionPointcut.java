@@ -23,6 +23,7 @@ public class AspectJExpressionPointcut implements Pointcut, ClassFilter, MethodM
     private static final Set<PointcutPrimitive> SUPPORTED_PRIMITIVES = new HashSet<>();
 
     static {
+        // "execution(* cn.itnxd.springframework.bean.UserService.*(..))"
         SUPPORTED_PRIMITIVES.add(PointcutPrimitive.EXECUTION); // 默认使用 execution 模式
     }
 

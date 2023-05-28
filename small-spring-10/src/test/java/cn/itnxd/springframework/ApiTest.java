@@ -1,13 +1,8 @@
 package cn.itnxd.springframework;
 
 import cn.hutool.core.io.IoUtil;
-import cn.itnxd.springframework.bean.UserMapper;
+import cn.itnxd.springframework.aop.aspectj.AspectJExpressionPointcut;
 import cn.itnxd.springframework.bean.UserService;
-import cn.itnxd.springframework.beans.PropertyValue;
-import cn.itnxd.springframework.beans.PropertyValues;
-import cn.itnxd.springframework.beans.factory.BeanFactory;
-import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
-import cn.itnxd.springframework.beans.factory.config.BeanReference;
 import cn.itnxd.springframework.beans.factory.support.DefaultListableBeanFactory;
 import cn.itnxd.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
@@ -19,6 +14,7 @@ import cn.itnxd.springframework.processor.MyBeanPostProcessor;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 
 /**
  * @Author niuxudong
@@ -112,5 +108,16 @@ public class ApiTest {
          收到事件【class cn.itnxd.springframework.event.CustomEvent】消息：自定义的发布消息
          收到事件【class cn.itnxd.springframework.context.event.ContextClosedEvent】消息
          */
+    }
+
+    @Test
+    public void test_aop() throws NoSuchMethodException {
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut("execution(* cn.itnxd.springframework.bean.UserService.*(..))");
+        Class<UserService> clazz = UserService.class;
+        Method method = clazz.getDeclaredMethod("getUserInfo");
+
+        System.out.println(pointcut.matches(clazz));
+
+        System.out.println(pointcut.matches(method, clazz));
     }
 }
