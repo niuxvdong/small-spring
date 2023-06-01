@@ -19,3 +19,5 @@
 10. [第九章 - 容器事件和事件监听器](https://github.com/niuxvdong/small-spring/blob/master/small-spring-09/README.md)
 
 ## AOP 篇
+
+11. [第十章 - 实现切点表达式以及基于 JDK 和 Cglib 实现 AOP 切面](https://github.com/niuxvdong/small-spring/blob/master/small-spring-10/README.md)
