@@ -73,8 +73,17 @@ public class ApiTest {
     }
 
     @Test
-    public void test_autoProxy() {
+    public void test_PropertyPlaceholderConfigurer() {
         ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        UserService userService = applicationContext.getBean("userService", UserService.class);
+
+        userService.getUserInfo(); // itnxd
+    }
+
+    @Test
+    public void test_scan() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:scan.xml");
 
         UserService userService = applicationContext.getBean("userService", UserService.class);
 
