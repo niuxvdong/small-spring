@@ -20,6 +20,7 @@
         <module>small-spring-09</module>
         <module>small-spring-10</module>
         <module>small-spring-11</module>
+        <module>small-spring-12</module>
     </modules>
 
     <properties>

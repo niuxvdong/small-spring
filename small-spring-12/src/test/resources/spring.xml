@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean id="userService" class="cn.itnxd.springframework.bean.UserServiceImpl"/>
+
+    <!--注入DefaultAdvisorAutoProxyCreator 这个 BeanPostProcessor -->
+    <bean class="cn.itnxd.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
+
+    <!--注入方法前置通知-->
+    <bean id="beforeAdvice" class="cn.itnxd.springframework.advice.UserServiceBeforeAdvice"/>
+
+    <!--注入方法前置通知的拦截器-->
+    <bean id="methodInterceptor" class="cn.itnxd.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
+
+    <!--注入切面通知 AspectJExpressionPointcutAdvisor -->
+    <bean id="pointcutAdvisor" class="cn.itnxd.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <!--填充表达式-->
+        <property name="expression" value="execution(* cn.itnxd.springframework.bean.UserService.*(..))"/>
+        <!--填充advice通知-->
+        <property name="advice" ref="methodInterceptor"/>
+    </bean>
+</beans>
