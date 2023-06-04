@@ -1,25 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans>
 
-    <!--初始化方法和销毁方法可以被解析后添加到BeanDefinition中保存起来-->
-<!--    <bean id="userMapper" class="cn.itnxd.springframework.bean.UserMapper" init-method="myInitMethod" destroy-method="myDestroyMethod"/>-->
+    <bean id="userService" class="cn.itnxd.springframework.bean.UserServiceImpl"/>
 
-<!--    <bean id="userService" class="cn.itnxd.springframework.bean.UserService" scope="prototype">-->
-<!--        <property name="id" value="10001"/>-->
-<!--        <property name="location" value="上海"/>-->
-<!--        <property name="company" value="特斯拉"/>-->
-<!--        <property name="userMapper" ref="userMapper"/>-->
-<!--    </bean>-->
+    <!--注入DefaultAdvisorAutoProxyCreator 这个 BeanPostProcessor -->
+    <bean class="cn.itnxd.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator"/>
 
-    <bean class="cn.itnxd.springframework.event.ContextClosedEventListener"/>
-    <bean class="cn.itnxd.springframework.event.ContextRefreshedEventListener"/>
-    <bean class="cn.itnxd.springframework.event.CustomEventListener"/>
+    <!--注入方法前置通知-->
+    <bean id="beforeAdvice" class="cn.itnxd.springframework.advice.UserServiceBeforeAdvice"/>
 
-    <!--
-        注意：若使用ApplicationContext需要将其注册到容器内；
-             若使用BeanFactory原始方法，则只需要在测试类中手动new,然后调用添加方法添加到容器
-    -->
-<!--    <bean id="myBeanFactoryPostProcessor" class="cn.itnxd.springframework.processor.MyBeanFactoryPostProcessor"/>-->
-<!--    <bean id="myBeanPostProcessor" class="cn.itnxd.springframework.processor.MyBeanPostProcessor"/>-->
+    <!--注入方法前置通知的拦截器-->
+    <bean id="methodInterceptor" class="cn.itnxd.springframework.aop.framework.adapter.MethodBeforeAdviceInterceptor">
+        <property name="advice" ref="beforeAdvice"/>
+    </bean>
 
+    <!--注入切面通知 AspectJExpressionPointcutAdvisor -->
+    <bean id="pointcutAdvisor" class="cn.itnxd.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor">
+        <!--填充表达式-->
+        <property name="expression" value="execution(* cn.itnxd.springframework.bean.UserService.*(..))"/>
+        <!--填充advice通知-->
+        <property name="advice" ref="methodInterceptor"/>
+    </bean>
 </beans>

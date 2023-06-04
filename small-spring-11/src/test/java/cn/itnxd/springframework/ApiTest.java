@@ -7,6 +7,7 @@ import cn.itnxd.springframework.aop.framework.CglibAopProxy;
 import cn.itnxd.springframework.aop.framework.JdkDynamicAopProxy;
 import cn.itnxd.springframework.bean.UserService;
 import cn.itnxd.springframework.bean.UserServiceImpl;
+import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
 import cn.itnxd.springframework.interceptor.UserServiceInterceptor;
 import org.junit.Test;
 
@@ -69,5 +70,14 @@ public class ApiTest {
         方法耗时：17ms
         ===========监控-结束===========
         */
+    }
+
+    @Test
+    public void test_autoProxy() {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:spring.xml");
+
+        UserService userService = applicationContext.getBean("userService", UserService.class);
+
+        userService.getUserInfo();
     }
 }
