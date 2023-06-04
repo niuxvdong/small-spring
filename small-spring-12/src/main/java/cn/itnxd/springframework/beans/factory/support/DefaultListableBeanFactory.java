@@ -87,4 +87,9 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
         // 对每个beanName都调用一次get方法即可，从一无所有到全都有
         beanDefinitionMap.keySet().forEach(this::getBean);
     }
+
+    @Override
+    public boolean containsBeanDefinition(String beanName) {
+        return beanDefinitionMap.containsKey(beanName);
+    }
 }
