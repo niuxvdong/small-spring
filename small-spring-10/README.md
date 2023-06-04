@@ -195,10 +195,12 @@ public class AdvisedSupport {
 - 具体代码及注释查看 small-spring-10 相关代码
 - Advisor：通知顶层接口，持有一个获取 advice 通知的方法
 - BeforeAdvice：前置通知顶层接口
-- MethodBeforeAdvice：方法前置通知
-- PointcutAdvisor：切点通知
+- MethodBeforeAdvice：方法前置通知（这里只实现一个方法前置通知，其他通知类似）
+- PointcutAdvisor：切面通知，提供获取切面 Pointcut 的方法
 - TargetSource：被代理的目标对象
 - AspectJExpressionPointcutAdvisor：aspectJ 表达式的 advisor 通知
+  - 实现了 PointcutAdvisor 接口，把切面 pointcut、拦截方法 advice 和具体的拦截表达式包装在一起。
+  - 这样就可以在 xml 的配置中定义一个 pointcutAdvisor 切面拦截器了。
 
 ## 三、增加 jdk 动态代理实现的切面
 
