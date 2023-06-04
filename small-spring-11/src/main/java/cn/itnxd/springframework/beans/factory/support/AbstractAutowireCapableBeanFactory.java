@@ -4,11 +4,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.exception.BeansException;
-import cn.itnxd.springframework.beans.factory.*;
-import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
-import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
-import cn.itnxd.springframework.beans.factory.config.BeanReference;
-import cn.itnxd.springframework.beans.factory.config.InstantiationStrategy;
+import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
+import cn.itnxd.springframework.beans.factory.BeanFactoryAware;
+import cn.itnxd.springframework.beans.factory.DisposableBean;
+import cn.itnxd.springframework.beans.factory.InitializingBean;
+import cn.itnxd.springframework.beans.factory.config.*;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -41,6 +41,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException {
         Object bean = null;
         try {
+            // 增加：判断是否是代理对象(是则直接返回代理对象,不继续走下面流程)
+            bean = resolveBeforeInstantiation(beanName, beanDefinition);
+            if (bean != null) return bean;
+
             // 1. 根据 BeanDefinition 创建 Bean
             bean = createBeanInstance(beanName, beanDefinition, args);
             // 2. 对 Bean 进行属性填充
@@ -60,6 +64,44 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             addSingleton(beanName, bean);
         }
         return bean;
+    }
+
+    /**
+     * 创建 bean 第一步先进行代理对象判断，是代理对象则执行完标准后置处理后直接返回，不继续走下面流程
+     * @param beanName
+     * @param beanDefinition
+     * @return
+     */
+    protected Object resolveBeforeInstantiation(String beanName, BeanDefinition beanDefinition) {
+        // 如果有切面则返回处理过后的代理对象，没有切面处理直接返回 null
+        Object bean = applyBeanPostProcessorsBeforeInstantiation(beanDefinition.getBeanClass(), beanName);
+        if (bean != null) {
+            // 代理对象生成之后，执行 BeanPostProcessor 的后置处理方法（前置处理方法由 InstantiationAwareBeanPostProcessor 进行替换处理了）
+            bean = applyBeanPostProcessorsAfterInitialization(bean, beanName);
+        }
+        return bean;
+    }
+
+    /**
+     * 处理 aop 的特殊 processor: InstantiationAwareBeanPostProcessor
+     * 返回融入切面的代理对象（cglib或jdk）
+     * @param beanClass
+     * @param beanName
+     * @return
+     */
+    protected Object applyBeanPostProcessorsBeforeInstantiation(Class<?> beanClass, String beanName) {
+        // 获取所有 BeanPostProcessor
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            // 找到实现了接口 InstantiationAwareBeanPostProcessor 的 processor
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                // 执行 InstantiationAwareBeanPostProcessor 专门定义的接口 postProcessBeforeInstantiation（处理aop的通知）
+                Object result = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessBeforeInstantiation(beanClass, beanName);
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+        return null;
     }
 
 
