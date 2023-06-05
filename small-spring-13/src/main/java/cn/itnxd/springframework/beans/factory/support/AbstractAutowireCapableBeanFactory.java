@@ -3,6 +3,7 @@ package cn.itnxd.springframework.beans.factory.support;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
+import cn.itnxd.springframework.beans.PropertyValues;
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.AutowireCapableBeanFactory;
 import cn.itnxd.springframework.beans.factory.BeanFactoryAware;
@@ -47,6 +48,10 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
             // 1. 根据 BeanDefinition 创建 Bean
             bean = createBeanInstance(beanName, beanDefinition, args);
+
+            // 增加：实例化之后，设置属性之前通过特殊的 BeanPostProcessor 处理 @value 和 @Autowired 注解的解析
+            applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
+
             // 2. 对 Bean 进行属性填充
             applyPropertyValues(beanName, beanDefinition, bean);
             // 3. bean实例化完成，执行初始化方法以及在初始化前后分别执行BeanPostProcessor
@@ -64,6 +69,30 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             addSingleton(beanName, bean);
         }
         return bean;
+    }
+
+    /**
+     * 实例化之后，设置属性之前通过特殊的 BeanPostProcessor 处理 @value 和 @Autowired 注解的解析
+     * 同样是将新的属性对 propertyValue 增加到 propertyValues 属性集合，统一在 applyPropertyValues 时候进行赋值，这里赋值是新值覆盖旧值
+     *
+     * @param beanName
+     * @param bean
+     * @param beanDefinition
+     */
+    protected void applyBeanPostProcessorsBeforeApplyingPropertyValues(String beanName, Object bean, BeanDefinition beanDefinition) {
+
+        for (BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
+            if (beanPostProcessor instanceof InstantiationAwareBeanPostProcessor) {
+                // 特殊的 BeanPostProcessor 则执行 postProcessPropertyValues 方法进行解析
+                PropertyValues pvs = ((InstantiationAwareBeanPostProcessor) beanPostProcessor).postProcessPropertyValues(beanDefinition.getPropertyValues(), bean, beanName);
+                if (pvs != null) {
+                    for (PropertyValue propertyValue : pvs.getPropertyValues()) {
+                        // 追加到 BeanDefinition 集合中进行保存
+                        beanDefinition.getPropertyValues().addPropertyValue(propertyValue);
+                    }
+                }
+            }
+        }
     }
 
     /**
