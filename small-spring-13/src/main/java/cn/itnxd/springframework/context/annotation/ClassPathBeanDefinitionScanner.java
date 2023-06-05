@@ -1,6 +1,7 @@
 package cn.itnxd.springframework.context.annotation;
 
 import cn.hutool.core.util.StrUtil;
+import cn.itnxd.springframework.beans.annotation.AutowiredAnnotationBeanPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.support.BeanDefinitionRegistry;
 import cn.itnxd.springframework.stereotype.Component;
@@ -38,6 +39,9 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
                 registry.registerBeanDefinition(beanName, candidate);
             }
         }
+
+        // 增加：想容器注册处理 @Autowired 和 @Value 注解的 BeanPostProcessor
+        registry.registerBeanDefinition("cn.itnxd.springframework.context.annotation.internalAutowiredAnnotationProcessor", new BeanDefinition(AutowiredAnnotationBeanPostProcessor.class));
     }
 
     /**
