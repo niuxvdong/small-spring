@@ -3,6 +3,7 @@ package cn.itnxd.springframework.aop.framework.autoproxy;
 import cn.itnxd.springframework.aop.*;
 import cn.itnxd.springframework.aop.aspectj.AspectJExpressionPointcutAdvisor;
 import cn.itnxd.springframework.aop.framework.ProxyFactory;
+import cn.itnxd.springframework.beans.PropertyValues;
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.BeanFactory;
 import cn.itnxd.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
@@ -90,5 +91,19 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws BeansException {
         return bean;
+    }
+
+    /**
+     * 职责分离，本类只处理 aop 切面代理对象的生成。
+     * 本方法直接返回不做处理。
+     * @param pvs
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException {
+        return pvs;
     }
 }
