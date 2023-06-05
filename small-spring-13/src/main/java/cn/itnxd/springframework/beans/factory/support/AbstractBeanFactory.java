@@ -5,6 +5,7 @@ import cn.itnxd.springframework.beans.factory.ConfigurableBeanFactory;
 import cn.itnxd.springframework.beans.factory.FactoryBean;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
+import cn.itnxd.springframework.utils.StringValueResolver;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,9 +21,12 @@ import java.util.Map;
 public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry implements ConfigurableBeanFactory {
 
     // 增加：持有 beanPostProcessors
-    private List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
-    private Map<String, Object> factoryBeanObjectCache = new HashMap<>();
+    private final Map<String, Object> factoryBeanObjectCache = new HashMap<>();
+
+    // 增加存储 value 解析器的集合
+    private final List<StringValueResolver> embeddedValueResolvers = new ArrayList<>();
 
     /**
      * 1. 实现顶层 BeanFactory 接口的唯一方法 <br>
@@ -146,5 +150,28 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     public List<BeanPostProcessor> getBeanPostProcessors() {
         return this.beanPostProcessors;
+    }
+
+    /**
+     * 添加解析器到 embeddedValueResolvers 保存
+     *
+     * @param valueResolver
+     */
+    public void addEmbeddedValueResolver(StringValueResolver valueResolver) {
+        this.embeddedValueResolvers.add(valueResolver);
+    }
+
+    /**
+     * 对传入的字符串调用注册进来的解析器进行解析，返回解析结果
+     *
+     * @param value
+     * @return
+     */
+    public String resolveEmbeddedValue(String value) {
+        String result = value;
+        for (StringValueResolver resolver : this.embeddedValueResolvers) {
+            result = resolver.resolveStringValue(result);
+        }
+        return result;
     }
 }

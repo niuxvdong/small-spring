@@ -2,6 +2,7 @@ package cn.itnxd.springframework.beans.factory;
 
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.SingletonBeanRegistry;
+import cn.itnxd.springframework.utils.StringValueResolver;
 
 /**
  * @Author niuxudong
@@ -25,4 +26,19 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * 添加：销毁单例bean接口
      */
     void destroySingletons();
+
+    /**
+     * 增加 @Value 注解的值解析器
+     *
+     * @param valueResolver
+     */
+    void addEmbeddedValueResolver(StringValueResolver valueResolver);
+
+    /**
+     * 增加对传入值调用解析器返回解析结果方法
+     *
+     * @param value
+     * @return
+     */
+    String resolveEmbeddedValue(String value);
 }
