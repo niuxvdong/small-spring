@@ -22,3 +22,7 @@
 
 11. [第十章 - 实现切点表达式以及基于 JDK 和 Cglib 实现 AOP 切面](https://github.com/niuxvdong/small-spring/blob/master/small-spring-10/README.md)
 12. [第十一章 - 把 AOP 切面逻辑融入 Bean 生命周期](https://github.com/niuxvdong/small-spring/blob/master/small-spring-11/README.md)
+
+## 拓展篇
+
+13. [第十二章 - 支持包扫描和 ${} 占位符配置解析](https://github.com/niuxvdong/small-spring/blob/master/small-spring-12/README.md)
