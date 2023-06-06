@@ -15,12 +15,14 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor, 
     /**
      * bean 实例化或初始化之前执行（与 postProcessBeforeInitialization 作用一样，传入参数不一样）
      *
+     * 废弃：用于处理生成逻辑，转移到 BeanPostProcessor.postProcessAfterInitialization 方法中进行代理替换
+     *
      * @param beanClass
      * @param beanName
      * @return
      * @throws BeansException
      */
-    public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException;
+    Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException;
 
     /**
      * 增加对属性 @Value 或 @Autowired 注解的解析设置处理

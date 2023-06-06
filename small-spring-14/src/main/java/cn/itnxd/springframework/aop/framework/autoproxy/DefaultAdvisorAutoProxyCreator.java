@@ -29,7 +29,7 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
     }
 
     /**
-     * bean 初始化方法执行前 进行处理
+     * 废弃：这个在实例化前处理的 代理生成，防止返回 代理对象后影响 createBean 流程的后续操作，造成短路
      * @param beanClass
      * @param beanName
      * @return
@@ -37,8 +37,20 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
      */
     @Override
     public Object postProcessBeforeInstantiation(Class<?> beanClass, String beanName) throws BeansException {
+        return null;
+    }
+
+    /**
+     * 增加：通过 BeanPostProcessor 的后置处理中，修改 bean 实例，替换为代理对象（若有）
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
         // 基础 bean (advice/pointcut/advisor) 不进行处理
-        if (isInfrastructureClass(beanClass)) {
+        if (isInfrastructureClass(bean.getClass())) {
             return null;
         }
 
@@ -47,15 +59,12 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
         for (AspectJExpressionPointcutAdvisor advisor : advisors) {
             ClassFilter classFilter = advisor.getPointcut().getClassFilter();
             // 类过滤器匹配则进行处理
-            if (classFilter.matches(beanClass)) {
+            if (classFilter.matches(bean.getClass())) {
                 AdvisedSupport advisedSupport = new AdvisedSupport();
 
-                TargetSource targetSource = null;
-                try {
-                    targetSource = new TargetSource(beanClass.getDeclaredConstructor().newInstance());
-                } catch (Exception e) {
-                    throw new BeansException("创建 bean【" + beanName + "】代理失败");
-                }
+                // 注意：改变自动代理融入时机，则这里的 bean 可能是 cglib 生成的实例，在动态代理获取 interface 时会有问题，
+                // 因此在 targetSource 类中做一下判断处理
+                TargetSource targetSource = new TargetSource(bean);
 
                 // 为 advice 支持类填充需要的信息方便使用
                 advisedSupport.setTargetSource(targetSource);
@@ -69,7 +78,7 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
                 return new ProxyFactory(advisedSupport).getProxy();
             }
         }
-        return null;
+        return bean;
     }
 
     /**
@@ -81,11 +90,6 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
         return Advice.class.isAssignableFrom(beanClass)
                 || Pointcut.class.isAssignableFrom(beanClass)
                 || Advisor.class.isAssignableFrom(beanClass);
-    }
-
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
-        return bean;
     }
 
     @Override
