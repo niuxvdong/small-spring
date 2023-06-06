@@ -9,4 +9,8 @@
 
     <context:component-scan base-package="cn.itnxd.springframework.bean"/>
 
+    <bean class="cn.itnxd.springframework.beans.factory.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:user.properties" />
+    </bean>
+
 </beans>

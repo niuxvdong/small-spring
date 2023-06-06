@@ -1,5 +1,7 @@
 package cn.itnxd.springframework.bean;
 
+import cn.itnxd.springframework.beans.annotation.Autowired;
+import cn.itnxd.springframework.beans.annotation.Value;
 import cn.itnxd.springframework.stereotype.Component;
 
 /**
@@ -15,11 +17,16 @@ public class UserServiceImpl implements UserService{
     private String company;
     private String location;
 
+    @Value("${username}")
     private String username;
+
+    @Autowired
+    private Car car;
 
     @Override
     public void getUserInfo() {
         System.out.println("查询用户信息: " + username);
+        System.out.println("car: " + car);
     }
 
     //=================================================================//
@@ -54,5 +61,13 @@ public class UserServiceImpl implements UserService{
 
     public String getUsername() {
         return username;
+    }
+
+    public Car getCar() {
+        return car;
+    }
+
+    public void setCar(Car car) {
+        this.car = car;
     }
 }
