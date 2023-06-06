@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean id="userService" class="cn.itnxd.springframework.bean.UserServiceImpl">
+        <property name="username" value="${username}"/>
+    </bean>
+
+    <bean class="cn.itnxd.springframework.beans.factory.PropertyPlaceholderConfigurer">
+        <property name="location" value="classpath:user.properties" />
+    </bean>
+
+</beans>
