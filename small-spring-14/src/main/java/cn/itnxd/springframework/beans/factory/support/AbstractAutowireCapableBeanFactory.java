@@ -42,10 +42,6 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     protected Object createBean(String beanName, BeanDefinition beanDefinition, Object[] args) throws BeansException {
         Object bean = null;
         try {
-            // 增加：判断是否是代理对象(是则直接返回代理对象,不继续走下面流程)
-            bean = resolveBeforeInstantiation(beanName, beanDefinition);
-            if (bean != null) return bean;
-
             // 1. 根据 BeanDefinition 创建 Bean
             bean = createBeanInstance(beanName, beanDefinition, args);
 
@@ -55,7 +51,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // 2. 对 Bean 进行属性填充
             applyPropertyValues(beanName, beanDefinition, bean);
             // 3. bean实例化完成，执行初始化方法以及在初始化前后分别执行BeanPostProcessor
-            initializeBean(beanName, beanDefinition, bean);
+            bean = initializeBean(beanName, beanDefinition, bean);
         } catch (BeansException e) {
             throw new BeansException("初始化Bean失败: ", e);
         }
@@ -96,7 +92,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     /**
-     * 创建 bean 第一步先进行代理对象判断，是代理对象则执行完标准后置处理后直接返回，不继续走下面流程
+     * 废弃：创建 bean 第一步先进行代理对象判断，是代理对象则执行完标准后置处理后直接返回，不继续走下面流程
      * @param beanName
      * @param beanDefinition
      * @return
@@ -112,7 +108,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
     }
 
     /**
-     * 处理 aop 的特殊 processor: InstantiationAwareBeanPostProcessor
+     * 废弃：处理 aop 的特殊 processor: InstantiationAwareBeanPostProcessor
      * 返回融入切面的代理对象（cglib或jdk）
      * @param beanClass
      * @param beanName
@@ -216,7 +212,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 1. 获取到所有的 BeanPostProcessor
         for(BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
             // 2. 依次执行所有的处理方法
-            Object dealFinishBean = beanPostProcessor.postProcessBeforeInitialization(bean, beanName);
+            Object dealFinishBean = beanPostProcessor.postProcessBeforeInitialization(resultBean, beanName);
             if (dealFinishBean == null) {
                 // 3. 处理过程中有问题则返回原始bean
                 return resultBean;
@@ -239,7 +235,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 1. 获取到所有的 BeanPostProcessor
         for(BeanPostProcessor beanPostProcessor : getBeanPostProcessors()) {
             // 2. 依次执行所有的处理方法
-            Object dealFinishBean = beanPostProcessor.postProcessAfterInitialization(bean, beanName);
+            Object dealFinishBean = beanPostProcessor.postProcessAfterInitialization(resultBean, beanName);
             if (dealFinishBean == null) {
                 // 3. 处理过程中有问题则返回原始bean
                 return resultBean;
