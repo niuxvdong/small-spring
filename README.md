@@ -17,13 +17,14 @@
 8. [第八章 - 实现 Aware 接口使子类可以感知到容器对象（一）](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-1.md)
 9. [第八章 - 实现 Bean 作用域以及 FactoryBean （二）](https://github.com/niuxvdong/small-spring/blob/master/small-spring-08/README-2.md)
 10. [第九章 - 容器事件和事件监听器](https://github.com/niuxvdong/small-spring/blob/master/small-spring-09/README.md)
+11. [第十四章 - 解决代理对象生成后没有继续向下执行的 bug](https://github.com/niuxvdong/small-spring/blob/master/small-spring-14/README.md)
 
 ## AOP 篇
 
-11. [第十章 - 实现切点表达式以及基于 JDK 和 Cglib 实现 AOP 切面](https://github.com/niuxvdong/small-spring/blob/master/small-spring-10/README.md)
-12. [第十一章 - 把 AOP 切面逻辑融入 Bean 生命周期](https://github.com/niuxvdong/small-spring/blob/master/small-spring-11/README.md)
+12. [第十章 - 实现切点表达式以及基于 JDK 和 Cglib 实现 AOP 切面](https://github.com/niuxvdong/small-spring/blob/master/small-spring-10/README.md)
+13. [第十一章 - 把 AOP 切面逻辑融入 Bean 生命周期](https://github.com/niuxvdong/small-spring/blob/master/small-spring-11/README.md)
 
 ## 拓展篇
 
-13. [第十二章 - 支持包扫描和 ${} 占位符配置解析](https://github.com/niuxvdong/small-spring/blob/master/small-spring-12/README.md)
-14. [第十三章 - 增加 @Value 和 @Autowired 属性自动注入](https://github.com/niuxvdong/small-spring/blob/master/small-spring-13/README.md)
+14. [第十二章 - 支持包扫描和 ${} 占位符配置解析](https://github.com/niuxvdong/small-spring/blob/master/small-spring-12/README.md)
+15. [第十三章 - 增加 @Value 和 @Autowired 属性自动注入](https://github.com/niuxvdong/small-spring/blob/master/small-spring-13/README.md)
