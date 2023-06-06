@@ -1,26 +1,22 @@
 package cn.itnxd.springframework.bean;
 
-import cn.itnxd.springframework.beans.annotation.Autowired;
-import cn.itnxd.springframework.beans.annotation.Value;
-import cn.itnxd.springframework.stereotype.Component;
-
 /**
  * @Author niuxudong
  * @Date 2023/4/9 18:32
  * @Version 1.0
  * @Description 这里为实现接口方式的初始化和销毁方法
  */
-@Component("userService")
+//@Component("userService")
 public class UserServiceImpl implements UserService{
 
     private String id;
     private String company;
     private String location;
 
-    @Value("${username}")
+//    @Value("${username}")
     private String username;
 
-    @Autowired
+//    @Autowired
     private Car car;
 
     @Override
