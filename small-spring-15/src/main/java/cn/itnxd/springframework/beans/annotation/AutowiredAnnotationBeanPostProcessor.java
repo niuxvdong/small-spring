@@ -2,12 +2,14 @@ package cn.itnxd.springframework.beans.annotation;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.TypeUtil;
 import cn.itnxd.springframework.beans.PropertyValues;
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.BeanFactory;
 import cn.itnxd.springframework.beans.factory.BeanFactoryAware;
 import cn.itnxd.springframework.beans.factory.ConfigurableListableBeanFactory;
 import cn.itnxd.springframework.beans.factory.config.InstantiationAwareBeanPostProcessor;
+import cn.itnxd.springframework.core.convert.ConversionService;
 
 import java.lang.reflect.Field;
 
@@ -47,9 +49,20 @@ public class AutowiredAnnotationBeanPostProcessor  implements InstantiationAware
         for (Field field : fields) {
             Value valueAnnotation = field.getAnnotation(Value.class);
             if (valueAnnotation != null) {
-                String value = valueAnnotation.value();
+                Object value = valueAnnotation.value();
                 // 使用容器中字符串解析器 解析注解的 value 属性返回解析结果
-                value = beanFactory.resolveEmbeddedValue(value);
+                value = beanFactory.resolveEmbeddedValue((String) value);
+
+                // 增加：类型转换能力
+                Class<?> sourceType = value.getClass();
+                Class<?> targetType = (Class<?>) TypeUtil.getType(field);
+                ConversionService conversionService = beanFactory.getConversionService();
+                if (conversionService != null) {
+                    if (conversionService.canConvert(sourceType, targetType)) {
+                        value = conversionService.convert(value, targetType);
+                    }
+                }
+
                 // 为 bean 设置解析后的属性值（配置文件中获取占位符属性对应值）
                 BeanUtil.setFieldValue(bean, field.getName(), value);
             }

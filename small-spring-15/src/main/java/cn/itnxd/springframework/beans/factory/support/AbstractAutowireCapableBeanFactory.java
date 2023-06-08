@@ -2,6 +2,7 @@ package cn.itnxd.springframework.beans.factory.support;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.TypeUtil;
 import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.PropertyValues;
 import cn.itnxd.springframework.beans.exception.BeansException;
@@ -10,6 +11,7 @@ import cn.itnxd.springframework.beans.factory.BeanFactoryAware;
 import cn.itnxd.springframework.beans.factory.DisposableBean;
 import cn.itnxd.springframework.beans.factory.InitializingBean;
 import cn.itnxd.springframework.beans.factory.config.*;
+import cn.itnxd.springframework.core.convert.ConversionService;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -190,6 +192,19 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
                 if (value instanceof BeanReference) {
                     BeanReference beanReference = (BeanReference) value;
                     value = getBean(beanReference.getBeanName());
+                } else {
+                    // 属性不是 bean，则进行类型转换后再设置属性值
+                    Class<?> sourceType = value.getClass();
+                    // 获取到 bean 中属性的类型
+                    Class<?> targetType = (Class<?>) TypeUtil.getFieldType(bean.getClass(), name);
+                    // 获取到注册到容器的 类型转换服务
+                    ConversionService conversionService = getConversionService();
+                    if (conversionService != null) {
+                        if (conversionService.canConvert(sourceType, targetType)) {
+                            // 非空且可以进行转换则调用转换服务进行转换
+                            value = conversionService.convert(value, targetType);
+                        }
+                    }
                 }
                 // 3. 将属性 k v 设置到 bean 对象中
                 BeanUtil.setFieldValue(bean, name, value);
