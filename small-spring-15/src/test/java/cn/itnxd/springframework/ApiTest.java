@@ -1,5 +1,7 @@
 package cn.itnxd.springframework;
 
+import cn.itnxd.springframework.bean.UserService;
+import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
 import cn.itnxd.springframework.converter.StringToBooleanConverter;
 import cn.itnxd.springframework.converter.StringToIntegerConverter;
 import cn.itnxd.springframework.core.convert.converter.Converter;
@@ -71,5 +73,15 @@ public class ApiTest {
         Boolean flag = conversionService.convert("true", Boolean.class);
 
         System.out.println(flag + " " + canConvert2);
+    }
+
+
+    @Test
+    public void testConversionService() throws Exception {
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:scan.xml");
+
+        UserService userService = applicationContext.getBean("userService", UserService.class);
+
+        userService.getUserInfo(); // success: true
     }
 }

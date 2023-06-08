@@ -16,6 +16,8 @@ public class UserServiceImpl implements UserService{
 //    @Value("${username}")
     private String username;
 
+    private Boolean success;
+
 //    @Autowired
     private Car car;
 
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService{
     public void getUserInfo() {
         System.out.println("查询用户信息: " + username);
         System.out.println("car: " + car);
+        System.out.println("success: " + success);
     }
 
     //=================================================================//
@@ -65,5 +68,13 @@ public class UserServiceImpl implements UserService{
 
     public void setCar(Car car) {
         this.car = car;
+    }
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
     }
 }
