@@ -2,6 +2,7 @@ package cn.itnxd.springframework.beans.factory;
 
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
 import cn.itnxd.springframework.beans.factory.config.SingletonBeanRegistry;
+import cn.itnxd.springframework.core.convert.ConversionService;
 import cn.itnxd.springframework.utils.StringValueResolver;
 
 /**
@@ -41,4 +42,16 @@ public interface ConfigurableBeanFactory extends HierarchicalBeanFactory, Single
      * @return
      */
     String resolveEmbeddedValue(String value);
+
+    /**
+     * 增加注册类型转换器 ConversionService 方法
+     * @param conversionService
+     */
+    void setConversionService(ConversionService conversionService);
+
+    /**
+     * 增加获取类型转换器 ConversionService 方法
+     * @return
+     */
+    ConversionService getConversionService();
 }

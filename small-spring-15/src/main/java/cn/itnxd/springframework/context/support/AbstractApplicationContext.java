@@ -10,6 +10,7 @@ import cn.itnxd.springframework.context.ConfigurableApplicationContext;
 import cn.itnxd.springframework.context.event.ContextClosedEvent;
 import cn.itnxd.springframework.context.event.ContextRefreshedEvent;
 import cn.itnxd.springframework.context.event.SimpleApplicationEventMulticaster;
+import cn.itnxd.springframework.core.convert.ConversionService;
 import cn.itnxd.springframework.core.io.DefaultResourceLoader;
 
 import java.util.Collection;
@@ -63,10 +64,29 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
         registerListeners();
 
         // 8. 开始实例化，先实例化单例Bean
-        beanFactory.preInstantiateSingletons();
+        //beanFactory.preInstantiateSingletons();
+        // 修改：（二合一）注册类型转换器 和 提前实例化单例bean
+        finishBeanFactoryInitialization(beanFactory);
 
         // 9. 发布事件：容器refresh完成事件
         finishRefresh();
+    }
+
+    /**
+     * 在实例化 bean 之前先进行类型转换器注册
+     * @param beanFactory
+     */
+    private void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
+        // 设置类型转换器
+        if (beanFactory.containsBean("conversionService")) {
+            Object conversionService = beanFactory.getBean("conversionService");
+            if (conversionService instanceof ConversionService) {
+                // 通过 BeanFactory 保存到 AbstractBeanFactory 持有的 conversionService 中
+                beanFactory.setConversionService((ConversionService) conversionService);
+            }
+        }
+        // 提前实例化单例bean
+        beanFactory.preInstantiateSingletons();
     }
 
     /**
@@ -215,6 +235,16 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
     @Override
     public String[] getBeanDefinitionNames() {
         return getBeanFactory().getBeanDefinitionNames();
+    }
+
+    /**
+     * 判断容器是否有 bean
+     * @param name
+     * @return
+     */
+    @Override
+    public boolean containsBean(String name) {
+        return getBeanFactory().containsBean(name);
     }
 
     /**

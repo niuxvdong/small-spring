@@ -5,6 +5,7 @@ import cn.itnxd.springframework.beans.factory.ConfigurableBeanFactory;
 import cn.itnxd.springframework.beans.factory.FactoryBean;
 import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.BeanPostProcessor;
+import cn.itnxd.springframework.core.convert.ConversionService;
 import cn.itnxd.springframework.utils.StringValueResolver;
 
 import java.util.ArrayList;
@@ -27,6 +28,9 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
 
     // 增加存储 value 解析器的集合
     private final List<StringValueResolver> embeddedValueResolvers = new ArrayList<>();
+
+    // 增加类型转换器服务
+    private ConversionService conversionService;
 
     /**
      * 1. 实现顶层 BeanFactory 接口的唯一方法 <br>
@@ -173,5 +177,31 @@ public abstract class AbstractBeanFactory extends DefaultSingletonBeanRegistry i
             result = resolver.resolveStringValue(result);
         }
         return result;
+    }
+
+    /**
+     * 判断容器是否有 bean
+     * @param beanName
+     * @return
+     */
+    @Override
+    public boolean containsBean(String beanName) {
+        return containsBeanDefinition(beanName);
+    }
+
+    protected abstract boolean containsBeanDefinition(String beanName);
+
+    @Override
+    public ConversionService getConversionService() {
+        return conversionService;
+    }
+
+    /**
+     * 保存类型转换器服务
+     * @param conversionService
+     */
+    @Override
+    public void setConversionService(ConversionService conversionService) {
+        this.conversionService = conversionService;
     }
 }
