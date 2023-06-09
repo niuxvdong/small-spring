@@ -28,3 +28,4 @@
 
 14. [第十二章 - 支持包扫描和 ${} 占位符配置解析](https://github.com/niuxvdong/small-spring/blob/master/small-spring-12/README.md)
 15. [第十三章 - 增加 @Value 和 @Autowired 属性自动注入](https://github.com/niuxvdong/small-spring/blob/master/small-spring-13/README.md)
+16. [第十五章 - 添加数据类型转换器并融入 Bean 生命周期](https://github.com/niuxvdong/small-spring/blob/master/small-spring-15/README.md)
