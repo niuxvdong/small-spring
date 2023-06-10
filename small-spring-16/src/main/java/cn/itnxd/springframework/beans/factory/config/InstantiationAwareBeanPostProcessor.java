@@ -36,4 +36,15 @@ public interface InstantiationAwareBeanPostProcessor extends BeanPostProcessor, 
      * @throws BeansException
      */
     PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException;
+
+    /**
+     * 若被代理，则提前暴露代理引用（默认实现，具体由子类实现 DefaultAdvisorAutoProxyCreator）
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    default Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+        return bean;
+    }
 }

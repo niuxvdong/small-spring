@@ -12,6 +12,8 @@ import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @Author niuxudong
@@ -22,6 +24,9 @@ import java.util.Collection;
 public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPostProcessor {
 
     private DefaultListableBeanFactory beanFactory;
+
+    // 保存代理对象的引用
+    private final Set<Object> earlyProxyReferences = new HashSet<>();
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
@@ -49,9 +54,19 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
      */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws BeansException {
+        // 增加：若有 InstantiationAwareBeanPostProcessor 接口的 getEarlyBeanReference 实现，则这里会进入判断返回 原始 bean
+        // 但保存到容器一级缓存的是
+        if (earlyProxyReferences.contains(beanName)) {
+            return bean;
+        }
+        return wrapIfNecessary(bean, beanName);
+    }
+
+    private Object wrapIfNecessary(Object bean, String beanName) {
         // 基础 bean (advice/pointcut/advisor) 不进行处理
         if (isInfrastructureClass(bean.getClass())) {
-            return null;
+            // 修改这里返回原对象而不是 null
+            return bean;
         }
 
         // 获取容器所有的 aspectj 表达式通知
@@ -71,8 +86,8 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
                 advisedSupport.setMethodMatcher(advisor.getPointcut().getMethodMatcher());
                 // advisor 获取的 advice 就是各类通知，例如我们实现的 MethodBeforeAdvice（用户实现这些接口后）
                 advisedSupport.setMethodInterceptor((MethodInterceptor) advisor.getAdvice());
-                // 默认使用 jdk 动态代理
-                advisedSupport.setProxyTargetClass(false);
+                // 默认使用 cglib 动态代理
+                advisedSupport.setProxyTargetClass(true);
 
                 // 使用代理工厂进行创建代理对象
                 return new ProxyFactory(advisedSupport).getProxy();
@@ -109,5 +124,21 @@ public class DefaultAdvisorAutoProxyCreator implements InstantiationAwareBeanPos
     @Override
     public PropertyValues postProcessPropertyValues(PropertyValues pvs, Object bean, String beanName) throws BeansException {
         return pvs;
+    }
+
+    /**
+     * 提前暴露代理对象的引用
+     *
+     * @param bean
+     * @param beanName
+     * @return
+     * @throws BeansException
+     */
+    @Override
+    public Object getEarlyBeanReference(Object bean, String beanName) throws BeansException {
+        // 先向代理对象引用集合中添加 beanName
+        earlyProxyReferences.add(beanName);
+        // 再进行代理对象的创建返回
+        return wrapIfNecessary(bean, beanName);
     }
 }

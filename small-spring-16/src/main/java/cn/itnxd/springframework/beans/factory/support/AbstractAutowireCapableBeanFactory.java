@@ -47,9 +47,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // 1. 根据 BeanDefinition 创建 Bean
             bean = createBeanInstance(beanName, beanDefinition, args);
 
-            // 增加：在 Bean 实例化之后设置属性之前就将 实例放入 二级缓存中来解决循环依赖问题（提前暴露）
+            // 修改：循环依赖解决
             if (beanDefinition.isSingleton()) {
-                earlySingletonObjects.put(beanName, bean);
+                Object finalBean = bean;
+                // 实例化完成需要先将代理对象引用保存到三级缓存（若有：提前暴露代理对象的引用即可）
+                // 将获取到的代理对象引用（类似工厂Bean）保存到 singletonFactories 三级缓存中
+                addSingletonFactory(beanName, () -> getEarlyBeanReference(beanName, beanDefinition, finalBean));
             }
 
             // 增加：实例化之后，设置属性之前通过特殊的 BeanPostProcessor 处理 @value 和 @Autowired 注解的解析
@@ -66,12 +69,37 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
         // 4. 增加：初始化完成注册实现了销毁接口的对象
         registerDisposableBeanIfNecessary(bean, beanName, beanDefinition);
 
+        Object exposedObject = bean;
         // 增加：bean类型判断，单例才添加到单例map中
         if (beanDefinition.isSingleton()) {
+            // 若是代理对象获取代理对象
+            exposedObject = getSingleton(beanName);
             // 5. 添加到单例缓存 map
-            addSingleton(beanName, bean);
+            addSingleton(beanName, exposedObject);
         }
-        return bean;
+        return exposedObject;
+    }
+
+    /**
+     * 若为代理对象，获取代理对象引用；否则获取原 Bean
+     * @param beanName
+     * @param beanDefinition
+     * @param bean
+     * @return
+     */
+    protected Object getEarlyBeanReference(String beanName, BeanDefinition beanDefinition, Object bean) {
+        Object exposedObject = bean;
+        for (BeanPostProcessor bp : getBeanPostProcessors()) {
+            // 如果当前 bean 被代理了，即实现了 InstantiationAwareBeanPostProcessor 接口
+            if (bp instanceof InstantiationAwareBeanPostProcessor) {
+                // 则获取到代理对象的引用返回
+                exposedObject = ((InstantiationAwareBeanPostProcessor) bp).getEarlyBeanReference(exposedObject, beanName);
+                if (exposedObject == null) {
+                    return exposedObject;
+                }
+            }
+        }
+        return exposedObject;
     }
 
     /**
