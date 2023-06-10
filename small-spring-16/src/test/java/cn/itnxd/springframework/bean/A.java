@@ -10,6 +10,10 @@ public class A {
 
     private B b;
 
+    void fun() {
+        System.out.println("A.fun 方法执行...........");
+    }
+
     public B getB() {
         return b;
     }

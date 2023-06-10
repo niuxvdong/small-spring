@@ -24,5 +24,8 @@ public class ApiTest {
         B b = applicationContext.getBean("b", B.class);
 
         System.out.println(a.getB() == b); // true
+
+        // a 是代理对象，查看 b 注入的是不是代理对象 a
+        System.out.println(b.getA() == a); // true
     }
 }
