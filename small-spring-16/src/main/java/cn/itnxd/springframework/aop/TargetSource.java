@@ -29,6 +29,15 @@ public class TargetSource {
 	}
 
 	/**
+	 * 提供一个获取 bean 真实类型的方法，因为被 cglib 代理的需要特殊处理一下
+	 * @return
+	 */
+	public Class<?> getActualClass() {
+		Class<?> clazz = this.getTarget().getClass();
+		return isCglibClass(clazz) ? clazz.getSuperclass() : clazz;
+	}
+
+	/**
 	 * 简单判断是否是cglib代理的类
 	 *
 	 * @param clazz
