@@ -2,7 +2,6 @@ package cn.itnxd.springframework.beans.factory.support;
 
 import cn.itnxd.springframework.beans.exception.BeansException;
 import cn.itnxd.springframework.beans.factory.DisposableBean;
-import cn.itnxd.springframework.beans.factory.config.BeanDefinition;
 import cn.itnxd.springframework.beans.factory.config.SingletonBeanRegistry;
 
 import java.util.ArrayList;
@@ -18,20 +17,30 @@ import java.util.Map;
  */
 public class DefaultSingletonBeanRegistry implements SingletonBeanRegistry {
 
-    // 存放单例对象
+    // 存放单例对象（一级缓存）
     private Map<String, Object> singletonObjects = new HashMap<>();
+
+    // 增加二级缓存 earlySingletonObjects
+    protected Map<String, Object> earlySingletonObjects = new HashMap<>();
 
     // 增加：存放 disposableBean
     private Map<String, DisposableBean> disposableBeans = new HashMap<>();
 
     /**
      * 实现顶层单例接口的唯一个获取单例对象的方法
+     *
+     * 修改，先获取一级缓存 singletonObjects（设置属性之后的 Bean）
+     * 空则再获取二级缓存获取 earlySingletonObjects（未设置属性的 Bean）
      * @param beanName
      * @return
      */
     @Override
     public Object getSingleton(String beanName) {
-        return singletonObjects.get(beanName);
+        Object bean = singletonObjects.get(beanName);
+        if (bean == null) {
+            bean = earlySingletonObjects.get(beanName);
+        }
+        return bean;
     }
 
     /**

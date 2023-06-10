@@ -47,6 +47,11 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
             // 1. 根据 BeanDefinition 创建 Bean
             bean = createBeanInstance(beanName, beanDefinition, args);
 
+            // 增加：在 Bean 实例化之后设置属性之前就将 实例放入 二级缓存中来解决循环依赖问题（提前暴露）
+            if (beanDefinition.isSingleton()) {
+                earlySingletonObjects.put(beanName, bean);
+            }
+
             // 增加：实例化之后，设置属性之前通过特殊的 BeanPostProcessor 处理 @value 和 @Autowired 注解的解析
             applyBeanPostProcessorsBeforeApplyingPropertyValues(beanName, bean, beanDefinition);
 
