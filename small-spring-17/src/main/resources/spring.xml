@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans>
+
+    <bean id="userMapper" class="cn.itnxd.springframework.bean.UserMapper"/>
+
+    <bean id="userService" class="cn.itnxd.springframework.bean.UserService">
+        <property name="id" value="10001"/>
+        <property name="userMapper" ref="userMapper"/>
+    </bean>
+
+</beans>
