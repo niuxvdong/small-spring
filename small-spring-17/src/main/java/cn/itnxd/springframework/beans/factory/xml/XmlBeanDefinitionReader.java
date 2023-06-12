@@ -121,6 +121,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             String initMethodName = bean.attributeValue("init-method");
             String destroyMethodName = bean.attributeValue("destroy-method");
             String beanScope = bean.attributeValue("scope");
+            String lazyInit = bean.attributeValue("lazyInit");
 
             Class<?> clazz;
             try {
@@ -140,6 +141,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
             // 将 init-method 和 destroy-method 属性值进行保存
             beanDefinition.setInitMethodName(initMethodName);
             beanDefinition.setDestroyMethodName(destroyMethodName);
+            beanDefinition.setLazyInit(Boolean.parseBoolean(lazyInit));
             // 增加bean作用域设置
             if (StrUtil.isNotEmpty(beanScope)) {
                 beanDefinition.setScope(beanScope);

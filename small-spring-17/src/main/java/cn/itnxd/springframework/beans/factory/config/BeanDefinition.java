@@ -1,8 +1,6 @@
 package cn.itnxd.springframework.beans.factory.config;
 
-import cn.itnxd.springframework.beans.PropertyValue;
 import cn.itnxd.springframework.beans.PropertyValues;
-import cn.itnxd.springframework.beans.factory.InitializingBean;
 
 /**
  * @Author niuxudong
@@ -23,6 +21,9 @@ public class BeanDefinition {
 
     private boolean singleton = true;
     private boolean prototype = false;
+
+    // 增加：懒加载，默认不开启
+    private boolean lazyInit = false;
 
     // 增加：初始化方法名称
     private String initMethodName;
@@ -102,5 +103,13 @@ public class BeanDefinition {
         this.scope = scope;
         this.singleton = SCOPE_SINGLETON.equals(scope);
         this.prototype = SCOPE_PROTOTYPE.equals(scope);
+    }
+
+    public boolean isLazyInit() {
+        return lazyInit;
+    }
+
+    public void setLazyInit(boolean lazyInit) {
+        this.lazyInit = lazyInit;
     }
 }
