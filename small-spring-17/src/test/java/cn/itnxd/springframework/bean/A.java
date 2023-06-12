@@ -10,6 +10,12 @@ public class A {
 
     private B b;
 
+    private long endTime;
+
+    public void initTime() {
+        endTime = System.currentTimeMillis();
+    }
+
     public void fun() {
         System.out.println("A.fun 方法执行...........");
     }
@@ -20,5 +26,13 @@ public class A {
 
     public void setB(B b) {
         this.b = b;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
     }
 }

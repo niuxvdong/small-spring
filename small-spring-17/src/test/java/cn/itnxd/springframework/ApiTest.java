@@ -5,6 +5,8 @@ import cn.itnxd.springframework.bean.B;
 import cn.itnxd.springframework.context.support.ClassPathXmlApplicationContext;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @Author niuxudong
  * @Date 2023/4/9 18:29
@@ -29,5 +31,22 @@ public class ApiTest {
         System.out.println(b.getA() == a); // true
 
         a.fun();
+    }
+
+    @Test
+    public void testLazy() throws Exception {
+        long start = System.currentTimeMillis();
+
+        ClassPathXmlApplicationContext applicationContext = new ClassPathXmlApplicationContext("classpath:lazy.xml");
+
+        A a = applicationContext.getBean("a", A.class); // lazy=false
+
+        System.out.println("非懒加载：" + (a.getEndTime() - start)); // 319
+
+        TimeUnit.SECONDS.sleep(3);
+
+        B b = applicationContext.getBean("b", B.class); // lazy=true
+
+        System.out.println("延迟三秒调用的懒加载：" + (b.getEndTime() - start)); // 3327
     }
 }

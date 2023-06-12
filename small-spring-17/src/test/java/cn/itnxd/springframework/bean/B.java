@@ -10,11 +10,24 @@ public class B {
 
     private A a;
 
+    private long endTime;
+
+    public void initTime() {
+        endTime = System.currentTimeMillis();
+    }
     public A getA() {
         return a;
     }
 
     public void setA(A a) {
         this.a = a;
+    }
+
+    public long getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(long endTime) {
+        this.endTime = endTime;
     }
 }
