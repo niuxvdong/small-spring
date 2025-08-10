@@ -513,7 +513,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader i
 - ApplicationEventMulticaster 会通过 getBean 获取所有的 ApplicationListener
 - ApplicationContext 继承自 ApplicationEventPublisher 来注册事件发布，调用 ApplicationEventMulticaster 处理。
 
-![ClassPathXmlApplicationContext](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/27_20_38_34_202305272038096.png)
+![ClassPathXmlApplicationContext](https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/05/27_20_38_34_202305272038096.png)
 
 
 ## 四、简单测试

@@ -268,7 +268,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 - AbstractAutowireCapableBeanFactory 继承 AbstractBeanFactory 实现 createBean 核心方法
 - DefaultListableBeanFactory 为最底层实现类，拥有上面的所有能力；同时持有 beanDefinitionMap Bean 定义信息的保存能力 
 
-![https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/13_18_40_35_202305131840113.png](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/13_18_40_35_202305131840113.png)
+![https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/05/13_18_40_35_202305131840113.png](https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/05/13_18_40_35_202305131840113.png)
 
 
 ## 四、简单测试

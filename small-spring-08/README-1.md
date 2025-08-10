@@ -249,7 +249,7 @@ public void refresh() throws BeansException {
 - 声明周期中增加了两个 aware 接口
 - 可以清晰的看到 BeanFactoryAware 和 ApplicationContextAware 执行的时机
 
-![Bean 的生命周期图示](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/25_22_52_16_202305252252286.png)
+![Bean 的生命周期图示](https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/05/25_22_52_16_202305252252286.png)
 
 
 ## 四、简单测试

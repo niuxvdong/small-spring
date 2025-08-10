@@ -376,4 +376,4 @@ MethodBeforeAdvice 前置方法拦截：getUserInfo
 
 - 在实例化前增加了代理的判断和切面的逻辑处理
 
-![https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/06/4_19_16_51_202306041916013.png](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/06/4_19_16_51_202306041916013.png)
+![https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/06/4_19_16_51_202306041916013.png](https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/06/4_19_16_51_202306041916013.png)

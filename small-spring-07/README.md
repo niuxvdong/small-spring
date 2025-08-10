@@ -445,8 +445,8 @@ public void registerShutdownHook() {
 
 ## 三、bean 生命周期图示
 
-![增加了初始化和销毁方法的 bean 生命周期图示](https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/25_22_27_24_202305252227390.png)
-https://gitcode.net/qq_43590403/img/-/raw/master/pictures/2023/05/25_22_27_24_202305252227390.png
+![增加了初始化和销毁方法的 bean 生命周期图示](https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/05/25_22_27_24_202305252227390.png)
+https://cdn.itnxd.eu.org/gh/niuxvdong/img/pictures/2023/05/25_22_27_24_202305252227390.png
 
 ## 三、简单测试
 
